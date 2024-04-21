@@ -4,10 +4,10 @@ import com.github.sebsojeda.yapper.features.authentication.data.datasource.Authe
 import com.github.sebsojeda.yapper.features.authentication.data.repository.AuthenticationRepositoryImpl
 import com.github.sebsojeda.yapper.features.authentication.domain.repository.AuthenticationRepository
 import com.github.sebsojeda.yapper.features.authentication.domain.usecase.AuthenticationUseCases
+import com.github.sebsojeda.yapper.features.authentication.domain.usecase.ConfirmEmail
+import com.github.sebsojeda.yapper.features.authentication.domain.usecase.ResendEmail
 import com.github.sebsojeda.yapper.features.authentication.domain.usecase.SignIn
-import com.github.sebsojeda.yapper.features.authentication.domain.usecase.SignOut
 import com.github.sebsojeda.yapper.features.authentication.domain.usecase.SignUp
-import com.github.sebsojeda.yapper.features.authentication.domain.usecase.SignUpConfirmation
 import com.github.sebsojeda.yapper.features.user.domain.repository.UserRepository
 import dagger.Module
 import dagger.Provides
@@ -33,8 +33,8 @@ object AuthenticationModule {
         return AuthenticationUseCases(
             signIn = SignIn(authenticationRepository),
             signUp = SignUp(authenticationRepository, userRepository),
-            signUpConfirmation = SignUpConfirmation(authenticationRepository),
-            signOut = SignOut(authenticationRepository)
+            resendEmail = ResendEmail(authenticationRepository),
+            confirmEmail = ConfirmEmail(authenticationRepository)
         )
     }
 }

@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun PostDetail(
     post: Post,
-    onPostLikeClick: (String) -> Unit,
+    onPostLikeClick: () -> Unit,
     onPostCommentClick: (String) -> Unit,
 ) {
     Column(
@@ -63,7 +63,7 @@ fun PostDetail(
                 modifier = Modifier.padding(top = 8.dp)
             )
             Row(modifier = Modifier.padding(top = 4.dp)) {
-                Likes(likes = post.likes, onPostLikeClick = { onPostLikeClick(post.id) })
+                Likes(likedByUser = post.likedByUser, likes = post.likes, onPostLikeClick = { onPostLikeClick() })
                 Comments(comments = post.comments, onPostCommentClick = { onPostCommentClick(post.id) })
             }
         }
@@ -71,7 +71,7 @@ fun PostDetail(
 }
 
 private fun parseTimestamp(timestamp: String): String {
-    val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[.SSSSSS]")
+    val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[.SSSSSS][.SSSSS]")
     val outputFormatter = DateTimeFormatter.ofPattern("h:mm a • M/d/yy")
 
     val dateTime = LocalDateTime.parse(timestamp, inputFormatter)
@@ -97,6 +97,7 @@ fun PostDetailPreview() {
             content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud.",
             likes = 45,
             comments = 100,
+            likedByUser = false,
             createdAt = "2021-01-01T00:00:00Z",
             postMedia = listOf(
                 PostMedia(

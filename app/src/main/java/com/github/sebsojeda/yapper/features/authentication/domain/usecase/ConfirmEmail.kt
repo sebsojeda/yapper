@@ -6,13 +6,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-class SignOut @Inject constructor(
+class ConfirmEmail @Inject constructor(
     private val authenticationRepository: AuthenticationRepository,
 ) {
-    operator fun invoke(): Flow<Resource<Unit>> = flow {
+    operator fun invoke(email: String, token: String): Flow<Resource<Unit>> = flow {
         emit(Resource.Loading())
         try {
-            authenticationRepository.signOut()
+            authenticationRepository.confirmEmail(email, token)
             emit(Resource.Success(Unit))
         } catch (e: Exception) {
             emit(Resource.Error(e.message ?: "An error occurred"))

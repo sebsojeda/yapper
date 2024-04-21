@@ -31,8 +31,12 @@ class AuthenticationRemoteDataSource @Inject constructor(
             dataSource.resendEmail(email = email, type = OtpType.Email.EMAIL)
         }
 
-    suspend fun signOut(): Unit =
+    suspend fun confirmEmail(email: String, token: String): Unit =
         withContext(Dispatchers.IO) {
-            dataSource.signOut()
+            dataSource.verifyEmailOtp(
+                type = OtpType.Email.EMAIL,
+                email = email,
+                token = token
+            )
         }
 }

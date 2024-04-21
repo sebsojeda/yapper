@@ -16,6 +16,4 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun updateUser(userId: String, user: CreateUserDto): GetUserDto =
         userRemoteDataSource.updateUser(userId, user)
-
-    override suspend fun deleteUser(userId: String): Unit = userRemoteDataSource.deleteUser(userId)
 }

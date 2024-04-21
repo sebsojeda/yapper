@@ -11,5 +11,6 @@ data class Post(
     val likes: Int,
     val comments: Int,
     val createdAt: String,
+    val likedByUser: Boolean,
     val postMedia: List<PostMedia>
 )

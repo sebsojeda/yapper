@@ -36,10 +36,4 @@ class UserRemoteDataSource @Inject constructor(
                 }
                 .decodeSingle<GetUserDto>()
         }
-
-    suspend fun deleteUser(userId: String): Unit =
-        withContext(Dispatchers.IO) {
-            dataSource.from(Constants.TABLE_USERS)
-                .delete { filter { eq("id", userId) } }
-        }
 }

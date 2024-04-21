@@ -32,7 +32,10 @@ class PostCreateViewModel @Inject constructor(
         postUseCases.createPost(content, _state.value.postId, media).onEach { result ->
             _state.value = when (result) {
                 is Resource.Loading -> _state.value.copy(isLoading = true)
-                is Resource.Success -> _state.value.copy(isLoading = false)
+                is Resource.Success -> _state.value.copy(
+                    isPostCreated = true,
+                    isLoading = false
+                )
                 is Resource.Error -> _state.value.copy(
                     error = result.message ?: "An unexpected error occurred",
                     isLoading = false

@@ -14,12 +14,14 @@ import com.github.sebsojeda.yapper.features.post.domain.usecase.CreatePost
 import com.github.sebsojeda.yapper.features.post.domain.usecase.GetPost
 import com.github.sebsojeda.yapper.features.post.domain.usecase.GetPostComments
 import com.github.sebsojeda.yapper.features.post.domain.usecase.GetPosts
+import com.github.sebsojeda.yapper.features.post.domain.usecase.LikePost
 import com.github.sebsojeda.yapper.features.post.domain.usecase.PostUseCases
+import com.github.sebsojeda.yapper.features.post.domain.usecase.UnlikePost
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import io.github.jan.supabase.gotrue.user.UserInfo
+import io.github.jan.supabase.gotrue.Auth
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -55,12 +57,14 @@ object PostModule {
 
     @Provides
     @Singleton
-    fun providesPostUseCases(postManager: PostManager, userInfo: UserInfo?): PostUseCases {
+    fun providesPostUseCases(postManager: PostManager, auth: Auth): PostUseCases {
         return PostUseCases(
-            createPost = CreatePost(postManager, userInfo),
+            createPost = CreatePost(postManager, auth),
             getPost = GetPost(postManager),
             getPosts = GetPosts(postManager),
-            getPostComments = GetPostComments(postManager)
+            getPostComments = GetPostComments(postManager),
+            likePost = LikePost(postManager, auth),
+            unlikePost = UnlikePost(postManager, auth)
         )
     }
 }

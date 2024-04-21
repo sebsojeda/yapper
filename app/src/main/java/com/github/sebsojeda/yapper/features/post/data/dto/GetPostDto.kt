@@ -16,6 +16,7 @@ data class GetPostDto(
     @SerialName("likes_count") val likesCount: Int,
     @SerialName("comments_count") val commentsCount: Int,
     @SerialName("created_at") val createdAt: String,
+    @SerialName("likes") val likes: List<GetCreateLikeDto>,
     @SerialName("post_media") val postMedia: List<GetPostMediaDto>,
 )
 
@@ -28,5 +29,6 @@ fun GetPostDto.toPost() = Post(
     likes = likesCount,
     comments = commentsCount,
     createdAt = createdAt,
+    likedByUser = likes.isNotEmpty(),
     postMedia = postMedia.map { it.toPostMedia() }
 )

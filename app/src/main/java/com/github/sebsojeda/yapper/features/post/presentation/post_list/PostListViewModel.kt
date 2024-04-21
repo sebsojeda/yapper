@@ -1,8 +1,11 @@
 package com.github.sebsojeda.yapper.features.post.presentation.post_list
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.sebsojeda.yapper.core.Constants
 import com.github.sebsojeda.yapper.core.Resource
+import com.github.sebsojeda.yapper.features.post.domain.model.Post
 import com.github.sebsojeda.yapper.features.post.domain.usecase.PostUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +27,7 @@ class PostListViewModel @Inject constructor(
     }
 
     fun getPosts() {
-        postUseCases.getPosts().onEach { result ->
+        postUseCases.getPosts(Constants.POST_REFRESH_INTERVAL).onEach { result ->
             _state.value = when (result) {
                 is Resource.Loading -> _state.value.copy(isLoading = true)
                 is Resource.Success -> _state.value.copy(
@@ -39,7 +42,51 @@ class PostListViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun onPostLikeClick(postId: String) {
-
+    fun onPostLikeClick(post: Post) {
+        if (post.likedByUser) {
+            postUseCases.unlikePost(post.id).onEach { result ->
+                when (result) {
+                    is Resource.Loading -> {
+                        // Do nothing
+                    }
+                    is Resource.Success -> {
+                        _state.value = _state.value.copy(
+                            posts = _state.value.posts.map {
+                                if (it.id == post.id) {
+                                    it.copy(likedByUser = false, likes = it.likes - 1)
+                                } else {
+                                    it
+                                }
+                            }
+                        )
+                    }
+                    is Resource.Error -> {
+                        Log.e("PostDetailViewModel", "Error: ${result.message}")
+                    }
+                }
+            }.launchIn(viewModelScope)
+        } else {
+            postUseCases.likePost(post.id).onEach { result ->
+                when (result) {
+                    is Resource.Loading -> {
+                        // Do nothing
+                    }
+                    is Resource.Success -> {
+                        _state.value = _state.value.copy(
+                            posts = _state.value.posts.map {
+                                if (it.id == post.id) {
+                                    it.copy(likedByUser = true, likes = it.likes + 1)
+                                } else {
+                                    it
+                                }
+                            }
+                        )
+                    }
+                    is Resource.Error -> {
+                        Log.e("PostDetailViewModel", "Error: ${result.message}")
+                    }
+                }
+            }.launchIn(viewModelScope)
+        }
     }
 }

@@ -16,4 +16,8 @@ object Constants {
     // Params
     const val PARAM_POST_ID = "postId"
     const val PARAM_EMAIL = "email"
+    const val PARAM_FOCUS_REPLY = "focusReply"
+
+    // Posts
+    const val POST_REFRESH_INTERVAL = 30000L
 }

@@ -18,7 +18,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.github.sebsojeda.yapper.R
 import com.github.sebsojeda.yapper.core.extensions.topBorder
-import com.github.sebsojeda.yapper.features.post.presentation.PostDestination
+import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
 
 @Composable
 fun BottomNav(
@@ -30,7 +30,12 @@ fun BottomNav(
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         BottomNavItem(
-            onClick = { navController.navigate(PostDestination.PostList.route) },
+            onClick = {
+                navController.navigate(PostRoutes.PostList.route) {
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            },
             icon = {
                 Icon(
                     painter = painterResource(id = R.drawable.home_outline),
@@ -40,7 +45,12 @@ fun BottomNav(
             modifier = Modifier.weight(1f)
         )
         BottomNavItem(
-            onClick = { navController.navigate(PostDestination.PostList.route) },
+            onClick = {
+                navController.navigate(PostRoutes.PostList.route) {
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            },
             icon = {
                 Icon(
                     painter = painterResource(id = R.drawable.magnifying_glass_outline),
@@ -50,7 +60,12 @@ fun BottomNav(
             modifier = Modifier.weight(1f)
         )
         BottomNavItem(
-            onClick = { navController.navigate(PostDestination.PostList.route) },
+            onClick = {
+                navController.navigate(PostRoutes.PostList.route) {
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            },
             icon = {
                 Icon(
                     painter = painterResource(id = R.drawable.bell_outline),
@@ -60,7 +75,12 @@ fun BottomNav(
             modifier = Modifier.weight(1f)
         )
         BottomNavItem(
-            onClick = { navController.navigate(PostDestination.PostList.route) },
+            onClick = {
+                navController.navigate(PostRoutes.PostList.route) {
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            },
             icon = {
                 Icon(
                     painter = painterResource(id = R.drawable.envelope_outline),

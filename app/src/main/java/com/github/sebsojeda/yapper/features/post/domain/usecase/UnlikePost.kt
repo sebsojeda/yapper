@@ -1,28 +1,24 @@
 package com.github.sebsojeda.yapper.features.post.domain.usecase
 
 import com.github.sebsojeda.yapper.core.Resource
-import com.github.sebsojeda.yapper.features.post.data.dto.toPost
-import com.github.sebsojeda.yapper.features.post.domain.model.Post
 import com.github.sebsojeda.yapper.features.post.domain.repository.PostManager
 import io.github.jan.supabase.exceptions.HttpRequestException
 import io.github.jan.supabase.exceptions.RestException
+import io.github.jan.supabase.gotrue.Auth
 import io.ktor.client.plugins.HttpRequestTimeoutException
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-class GetPosts @Inject constructor(
+class UnlikePost @Inject constructor(
     private val postManager: PostManager,
+    private val auth: Auth,
 ) {
-    operator fun invoke(refreshInterval: Long): Flow<Resource<List<Post>>> = flow {
+    operator fun invoke(postId: String): Flow<Resource<Unit>> = flow {
         try {
             emit(Resource.Loading())
-            while (true) {
-                val posts = postManager.getPosts().map { it.toPost() }
-                emit(Resource.Success(posts))
-                delay(refreshInterval)
-            }
+            postManager.unlikePost(postId, auth.currentUserOrNull()!!.id)
+            emit(Resource.Success(Unit))
         } catch (e: RestException) {
             emit(Resource.Error(e.error))
         } catch (e: HttpRequestTimeoutException) {

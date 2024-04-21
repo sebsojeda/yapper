@@ -5,6 +5,7 @@ import com.github.sebsojeda.yapper.core.domain.repository.MediaRepository
 import com.github.sebsojeda.yapper.core.domain.repository.MediaStorageRepository
 import com.github.sebsojeda.yapper.features.post.data.dto.CreatePostDto
 import com.github.sebsojeda.yapper.features.post.data.dto.CreatePostMediaDto
+import com.github.sebsojeda.yapper.features.post.data.dto.GetCreateLikeDto
 import com.github.sebsojeda.yapper.features.post.data.dto.GetPostDto
 import com.github.sebsojeda.yapper.features.post.domain.repository.PostManager
 import com.github.sebsojeda.yapper.features.post.domain.repository.PostMediaRepository
@@ -63,4 +64,10 @@ class PostManagerImpl @Inject constructor(
             mediaStorageRepository.deleteMedia(it.media.filePath)
         }
     }
+
+    override suspend fun likePost(like: GetCreateLikeDto): GetCreateLikeDto =
+        postRepository.likePost(like)
+
+    override suspend fun unlikePost(postId: String, userId: String) =
+        postRepository.unlikePost(postId, userId)
 }

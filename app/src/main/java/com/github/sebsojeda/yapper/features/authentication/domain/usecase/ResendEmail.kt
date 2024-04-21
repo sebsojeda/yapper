@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-class SignUpConfirmation @Inject constructor(
+class ResendEmail @Inject constructor(
     private val authenticationRepository: AuthenticationRepository,
 ) {
     operator fun invoke(email: String): Flow<Resource<Unit>> = flow {

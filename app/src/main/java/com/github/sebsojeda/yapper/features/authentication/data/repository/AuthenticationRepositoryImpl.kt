@@ -17,6 +17,6 @@ class AuthenticationRepositoryImpl @Inject constructor(
     override suspend fun resendEmailConfirmation(email: String): Unit =
         dataSource.resendEmailConfirmation(email)
 
-    override suspend fun signOut(): Unit =
-        dataSource.signOut()
+    override suspend fun confirmEmail(email: String, token: String): Unit =
+        dataSource.confirmEmail(email, token)
 }

@@ -13,14 +13,11 @@ import io.github.jan.supabase.coil.coil
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.gotrue.Auth
 import io.github.jan.supabase.gotrue.FlowType
-import io.github.jan.supabase.gotrue.SessionStatus
 import io.github.jan.supabase.gotrue.auth
-import io.github.jan.supabase.gotrue.user.UserInfo
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.storage.Storage
 import io.github.jan.supabase.storage.storage
-import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -72,12 +69,4 @@ object SupabaseModule {
             }
             .build()
     }
-
-    @Provides
-    @Singleton
-    fun provideSessionStatus(auth: Auth): StateFlow<SessionStatus> = auth.sessionStatus
-
-    @Provides
-    @Singleton
-    fun provideCurrentUser(auth: Auth): UserInfo? = auth.currentUserOrNull()
 }

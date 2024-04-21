@@ -1,4 +1,4 @@
-package com.github.sebsojeda.yapper.features.authentication.presentation.landing
+package com.github.sebsojeda.yapper.features.authentication.presentation.welcome
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -13,29 +13,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.github.sebsojeda.yapper.features.authentication.presentation.AuthenticationDestination
-import com.github.sebsojeda.yapper.features.post.presentation.PostDestination
+import com.github.sebsojeda.yapper.features.authentication.presentation.AuthenticationRoutes
 
 @Composable
-fun LandingScreen(
-    navController: NavController,
-    viewModel: LandingViewModel = hiltViewModel()
-) {
-    val state = viewModel.state.collectAsState()
-
-    if (state.value.isAuthenticated) {
-        navController.navigate(PostDestination.PostList.route)
-    }
-
+fun WelcomeScreen(navController: NavController) {
     Scaffold {innerPadding ->
         Box(
             contentAlignment = Alignment.BottomCenter,
@@ -51,7 +39,7 @@ fun LandingScreen(
                     modifier = Modifier.padding(bottom = 32.dp),
                 )
                 Button(
-                    onClick = { navController.navigate(AuthenticationDestination.SignUp.route) },
+                    onClick = { navController.navigate(AuthenticationRoutes.SignUp.route) },
                     modifier = Modifier
                         .fillMaxWidth(0.8f)
                         .padding(top = 32.dp),
@@ -73,7 +61,7 @@ fun LandingScreen(
                         .padding(vertical = 8.dp)
                 )
                 Button(
-                    onClick = { navController.navigate(AuthenticationDestination.SignIn.route) },
+                    onClick = { navController.navigate(AuthenticationRoutes.SignIn.route) },
                     modifier = Modifier
                         .fillMaxWidth(0.8f)
                         .padding(bottom = 32.dp)

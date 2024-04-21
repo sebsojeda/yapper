@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.github.sebsojeda.yapper.R
-import com.github.sebsojeda.yapper.features.authentication.presentation.AuthenticationDestination
+import com.github.sebsojeda.yapper.features.authentication.presentation.AuthenticationRoutes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,8 +56,8 @@ fun SignInScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            navController.navigate(AuthenticationDestination.Landing.route) {
-                                popUpTo(AuthenticationDestination.Landing.route) { inclusive = true }
+                            navController.navigate(AuthenticationRoutes.Welcome.route) {
+                                popUpTo(AuthenticationRoutes.Welcome.route) { inclusive = true }
                             }
                         }
                     ) {
@@ -139,7 +139,7 @@ fun SignInScreen(
                         .padding(vertical = 8.dp)
                 )
                 Button(
-                    onClick = { navController.navigate(AuthenticationDestination.SignUp.route) },
+                    onClick = { navController.navigate(AuthenticationRoutes.SignUp.route) },
                     enabled = !state.value.isLoading,
                     modifier = Modifier
                         .fillMaxWidth(0.8f)

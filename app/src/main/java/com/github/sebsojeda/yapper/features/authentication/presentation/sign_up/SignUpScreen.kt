@@ -1,5 +1,6 @@
 package com.github.sebsojeda.yapper.features.authentication.presentation.sign_up
 
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -37,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.github.sebsojeda.yapper.R
-import com.github.sebsojeda.yapper.features.authentication.presentation.AuthenticationDestination
+import com.github.sebsojeda.yapper.features.authentication.presentation.AuthenticationRoutes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,7 +53,7 @@ fun SignUpScreen(
     var password by remember { mutableStateOf("") }
 
     if (state.value.isPendingEmailConfirmation) {
-        navController.navigate(AuthenticationDestination.SignUpConfirmation.route)
+        navController.navigate(AuthenticationRoutes.SignUpConfirmation.route + "/$email")
     }
 
     Scaffold(
@@ -61,8 +63,8 @@ fun SignUpScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            navController.navigate(AuthenticationDestination.Landing.route) {
-                                popUpTo(AuthenticationDestination.Landing.route) { inclusive = true }
+                            navController.navigate(AuthenticationRoutes.Welcome.route) {
+                                popUpTo(AuthenticationRoutes.Welcome.route) { inclusive = true }
                             }
                         }
                     ) {
@@ -159,7 +161,7 @@ fun SignUpScreen(
                         .padding(vertical = 8.dp)
                 )
                 Button(
-                    onClick = { navController.navigate(AuthenticationDestination.SignIn.route) },
+                    onClick = { navController.navigate(AuthenticationRoutes.SignIn.route) },
                     enabled = !state.value.isLoading,
                     modifier = Modifier
                         .fillMaxWidth(0.8f)
@@ -177,6 +179,15 @@ fun SignUpScreen(
                 ) {
                     Text(text = "Sign in")
                 }
+            }
+            if (state.value.error.isNotEmpty()) {
+                // show toast message
+                val toast = Toast.makeText(
+                    LocalContext.current,
+                    state.value.error,
+                    Toast.LENGTH_SHORT
+                )
+                toast.show()
             }
         }
     }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -16,21 +17,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.github.sebsojeda.yapper.core.domain.model.Media
 import com.github.sebsojeda.yapper.core.extensions.topBorder
 import com.github.sebsojeda.yapper.features.post.domain.model.Post
-import com.github.sebsojeda.yapper.features.post.domain.model.PostMedia
 import com.github.sebsojeda.yapper.features.user.domain.model.User
 
 @Composable
 fun PostListItem(
     post: Post,
     onPostClick: (String) -> Unit,
-    onPostLikeClick: (String) -> Unit,
+    onPostLikeClick: () -> Unit,
     onPostCommentClick: (String) -> Unit,
 ) {
     Row(
         modifier = Modifier
+            .fillMaxWidth()
             .clickable { onPostClick(post.id) }
             .topBorder(1.dp, Color.LightGray)
             .padding(8.dp)
@@ -43,10 +43,14 @@ fun PostListItem(
                     modifier = Modifier.padding(end = 2.dp),
                     fontWeight = FontWeight.Bold,
                     text = post.user.name,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = "@${post.user.username}",
                     color = MaterialTheme.colorScheme.outline,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Text(
@@ -57,7 +61,7 @@ fun PostListItem(
             )
             Media(postMedia = post.postMedia)
             Row(modifier = Modifier.padding(top = 2.dp)) {
-                Likes(likes = post.likes, onPostLikeClick = { onPostLikeClick(post.id) })
+                Likes(likedByUser = post.likedByUser, likes = post.likes, onPostLikeClick = { onPostLikeClick() })
                 Comments(comments = post.comments, onPostCommentClick = { onPostCommentClick(post.id) })
             }
         }
@@ -83,13 +87,8 @@ fun PostListItemPreview() {
             likes = 45,
             comments = 100,
             createdAt = "2021-01-01T00:00:00Z",
-            postMedia = listOf(
-                PostMedia(
-                    postId = "1",
-                    mediaId = "1",
-                    media = Media("1", "")
-                ),
-            ),
+            likedByUser = false,
+            postMedia = emptyList(),
         ),
         onPostClick = {},
         onPostLikeClick = {},

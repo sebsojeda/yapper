@@ -15,13 +15,13 @@ import androidx.compose.ui.unit.dp
 import com.github.sebsojeda.yapper.R
 
 @Composable
-fun Likes(likes: Int, onPostLikeClick: () -> Unit) {
+fun Likes(likedByUser: Boolean, likes: Int, onPostLikeClick: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.width(60.dp),
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.heart_outline),
+            painter = painterResource(id = if (likedByUser) R.drawable.heart_solid else R.drawable.heart_outline),
             contentDescription = "Like",
             modifier = Modifier.clickable { onPostLikeClick() },
             tint = MaterialTheme.colorScheme.outline
@@ -36,5 +36,5 @@ fun Likes(likes: Int, onPostLikeClick: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun LikesPreview() {
-    Likes(10) {}
+    Likes(false,10) {}
 }
