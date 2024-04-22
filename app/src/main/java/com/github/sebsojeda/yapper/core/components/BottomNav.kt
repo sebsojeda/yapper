@@ -18,6 +18,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.github.sebsojeda.yapper.R
 import com.github.sebsojeda.yapper.core.extensions.topBorder
+import com.github.sebsojeda.yapper.features.chat.presentation.ChatRoutes
 import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
 
 @Composable
@@ -76,7 +77,7 @@ fun BottomNav(
         )
         BottomNavItem(
             onClick = {
-                navController.navigate(PostRoutes.PostList.route) {
+                navController.navigate(ChatRoutes.ChatList.route) {
                     launchSingleTop = true
                     restoreState = true
                 }

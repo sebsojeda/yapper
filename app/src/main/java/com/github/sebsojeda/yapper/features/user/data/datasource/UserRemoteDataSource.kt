@@ -20,6 +20,14 @@ class UserRemoteDataSource @Inject constructor(
                 }.decodeSingle<GetUserDto>()
         }
 
+    suspend fun getUserByUsername(username: String): GetUserDto =
+        withContext(Dispatchers.IO) {
+            dataSource.from(Constants.TABLE_USERS)
+                .select(Columns.raw("*, avatar(*)")) {
+                    filter { eq("username", username) }
+                }.decodeSingle<GetUserDto>()
+        }
+
     suspend fun createUser(user: CreateUserDto): GetUserDto =
         withContext(Dispatchers.IO) {
             dataSource.from(Constants.TABLE_USERS)

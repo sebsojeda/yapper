@@ -12,6 +12,9 @@ class ConversationRepositoryImpl @Inject constructor(
     override suspend fun getConversations(): List<GetConversationDto> =
         conversationRemoteDataSource.getConversations()
 
+    override suspend fun getConversation(conversationId: String): GetConversationDto =
+        conversationRemoteDataSource.getConversation(conversationId)
+
     override suspend fun createConversation(conversation: CreateConversationDto): GetConversationDto =
         conversationRemoteDataSource.createConversation(conversation)
 

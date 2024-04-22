@@ -16,23 +16,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.github.sebsojeda.yapper.core.Constants
-import com.github.sebsojeda.yapper.features.user.domain.model.User
 import io.github.jan.supabase.storage.publicStorageItem
 
 @Composable
-fun Avatar(user: User, size: Int, modifier: Modifier = Modifier) {
-    if (user.avatar != null) {
+fun Avatar(path: String?, name: String, size: Int, modifier: Modifier = Modifier) {
+    if (path != null) {
         AsyncImage(
             modifier = modifier
                 .size(size.dp)
                 .clip(CircleShape),
-            model = publicStorageItem(Constants.BUCKET_PUBLIC_MEDIA, user.avatar.path),
+            model = publicStorageItem(Constants.BUCKET_PUBLIC_MEDIA, path),
             contentScale = ContentScale.Crop,
-            contentDescription = user.username,
+            contentDescription = name,
         )
     } else {
-        val letter = user.username.first().uppercase()
-        val backgroundColor = getUsernameBasedColor(user.username)
+        val letter = name.first().uppercase()
+        val backgroundColor = getUsernameBasedColor(name)
         Box(
             contentAlignment = Alignment.Center,
             modifier = modifier
@@ -40,7 +39,7 @@ fun Avatar(user: User, size: Int, modifier: Modifier = Modifier) {
                 .background(color = backgroundColor, shape = CircleShape)
         ) {
             Text(
-                text = letter.toString(),
+                text = letter,
                 fontSize = (size / 2).sp, // Dynamic font size based on the size of the avatar
                 fontWeight = FontWeight.Bold,
                 color = Color.White
@@ -63,13 +62,8 @@ private fun getUsernameBasedColor(username: String): Color {
 @Composable
 fun AvatarPreview() {
     Avatar(
-        user = User(
-            id = "1",
-            username = "sebsojeda",
-            name = "Sebastian Ojeda",
-            createdAt = "",
-            avatar = null
-        ),
+        path = null,
+        name = "John Doe",
         size = 48,
     )
 }

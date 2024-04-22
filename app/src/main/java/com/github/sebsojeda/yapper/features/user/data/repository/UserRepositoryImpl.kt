@@ -9,7 +9,11 @@ import javax.inject.Inject
 class UserRepositoryImpl @Inject constructor(
     private val userRemoteDataSource: UserRemoteDataSource,
 ): UserRepository {
-    override suspend fun getUser(userId: String): GetUserDto = userRemoteDataSource.getUser(userId)
+    override suspend fun getUser(userId: String): GetUserDto =
+        userRemoteDataSource.getUser(userId)
+
+    override suspend fun getUserByUsername(username: String): GetUserDto =
+        userRemoteDataSource.getUserByUsername(username)
 
     override suspend fun createUser(user: CreateUserDto): GetUserDto =
         userRemoteDataSource.createUser(user)

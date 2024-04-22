@@ -7,5 +7,7 @@ data class Conversation(
     val name: String?,
     val mediaId: String?,
     val media: Media?,
+    val messages: List<Message>?,
+    val participants: List<Participant>?,
     val createdAt: String,
 )

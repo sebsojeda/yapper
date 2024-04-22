@@ -12,7 +12,7 @@ class MessageRepositoryImpl @Inject constructor(
     override suspend fun getMessages(conversationId: String): List<GetMessageDto> =
         messageRemoteDataSource.getMessages(conversationId)
 
-    override fun listenToMessages(conversationId: String) =
+    override suspend fun listenToMessages(conversationId: String) =
         messageRemoteDataSource.listenToMessages(conversationId)
 
     override suspend fun createMessage(message: CreateMessageDto): GetMessageDto =

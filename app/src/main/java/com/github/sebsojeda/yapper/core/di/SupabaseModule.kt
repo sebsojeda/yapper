@@ -14,6 +14,7 @@ import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.realtime.Realtime
+import io.github.jan.supabase.realtime.realtime
 import io.github.jan.supabase.storage.Storage
 import io.github.jan.supabase.storage.storage
 import javax.inject.Singleton
@@ -56,5 +57,11 @@ object SupabaseModule {
     @Singleton
     fun provideSupabaseStorage(client: SupabaseClient): Storage {
         return client.storage
+    }
+
+    @Provides
+    @Singleton
+    fun provideSupabaseRealtime(client: SupabaseClient): Realtime {
+        return client.realtime
     }
 }

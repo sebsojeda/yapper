@@ -56,7 +56,7 @@ fun YapperLayout(
             ModalDrawerSheet {
                 Column(Modifier.padding(16.dp)) {
                     if (user == null) return@Column
-                    Avatar(user = user, size = 32)
+                    Avatar(path = user.avatar?.path, name = user.name, size = 32)
                     Text(
                         text = user.name,
                         fontWeight = FontWeight.Bold,
@@ -92,7 +92,7 @@ fun YapperLayout(
                             }
                         })) {
                             if (user == null) return@Box
-                            Avatar(user = user, size = 32)
+                            Avatar(path = user.avatar?.path, name = user.name, size = 32)
                         }
                     },
                     scrollBehavior = scrollBehavior

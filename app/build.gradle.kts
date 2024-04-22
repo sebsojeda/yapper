@@ -71,7 +71,7 @@ dependencies {
     implementation(libs.supabase.realtime)
     implementation(libs.supabase.coil.integration)
     implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.utils)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

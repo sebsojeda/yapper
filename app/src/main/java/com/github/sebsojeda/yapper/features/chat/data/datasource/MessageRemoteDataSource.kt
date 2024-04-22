@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
 class MessageRemoteDataSource @Inject constructor(
@@ -33,27 +34,32 @@ class MessageRemoteDataSource @Inject constructor(
                 .decodeList<GetMessageDto>()
         }
 
-    fun listenToMessages(conversationId: String): Flow<GetMessageDto> {
+    suspend fun listenToMessages(conversationId: String): Flow<GetMessageDto> {
         val channel = realtime.channel("messages:$conversationId")
         val channelFlow = channel.postgresChangeFlow<PostgresAction.Insert>(schema = "public") {
             table = Constants.TABLE_MESSAGES
         }
 
-        return channelFlow.transform { action ->
-                val record = action.decodeRecord<GetMessageDto>()
-                val message = dataSource.from(Constants.TABLE_MESSAGES)
-                    .select(Columns.raw("*, user:user_id(*)")) {
-                        filter { eq("id", record.id) }
-                    }
-                    .decodeSingle<GetMessageDto>()
-                emit(message)
-            }
+        val transformFlow =  channelFlow.transform { action ->
+            @Serializable data class RecordId(val id: String)
+            val record = action.decodeRecord<RecordId>()
+            val message = dataSource.from(Constants.TABLE_MESSAGES)
+                .select(Columns.raw("*, user:user_id(*)")) {
+                    filter { eq("id", record.id) }
+                }
+                .decodeSingle<GetMessageDto>()
+            emit(message)
+        }
+
+        channel.subscribe()
+
+        return transformFlow
     }
 
     suspend fun createMessage(message: CreateMessageDto): GetMessageDto =
         withContext(Dispatchers.IO) {
             dataSource.from(Constants.TABLE_MESSAGES)
-                .insert(message) { select() }
+                .insert(message) { select(Columns.raw("*, user:user_id(*)")) }
                 .decodeSingle<GetMessageDto>()
         }
 }

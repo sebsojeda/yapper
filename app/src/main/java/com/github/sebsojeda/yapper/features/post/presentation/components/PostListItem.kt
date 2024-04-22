@@ -38,7 +38,7 @@ fun PostListItem(
             .topBorder(1.dp, Color.LightGray)
             .padding(8.dp)
     ) {
-        Avatar(user = post.user, size = 48)
+        Avatar(path = post.user.avatar?.path, name = post.user.name, size = 48)
         Spacer(modifier = Modifier.padding(4.dp))
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {

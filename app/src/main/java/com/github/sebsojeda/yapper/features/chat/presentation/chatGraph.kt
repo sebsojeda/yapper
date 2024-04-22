@@ -7,6 +7,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.github.sebsojeda.yapper.core.Constants
+import com.github.sebsojeda.yapper.features.chat.presentation.chat_create.ChatCreateScreen
+import com.github.sebsojeda.yapper.features.chat.presentation.chat_detail.ChatDetailScreen
+import com.github.sebsojeda.yapper.features.chat.presentation.chat_list.ChatListScreen
 
 fun NavGraphBuilder.chatGraph(navController: NavHostController) {
     navigation(
@@ -16,7 +19,7 @@ fun NavGraphBuilder.chatGraph(navController: NavHostController) {
         composable(
             route = ChatRoutes.ChatList.route
         ) {
-
+            ChatListScreen(navController)
         }
         composable(
             route = ChatRoutes.ChatDetail.route + "/{${Constants.PARAM_CONVERSATION_ID}}",
@@ -26,12 +29,12 @@ fun NavGraphBuilder.chatGraph(navController: NavHostController) {
                 }
             )
         ) {
-
+            ChatDetailScreen(navController)
         }
         composable(
             route = ChatRoutes.ChatCreate.route
         ) {
-
+            ChatCreateScreen(navController)
         }
     }
 }
