@@ -1,11 +1,14 @@
 package com.github.sebsojeda.yapper.features.post.presentation.post_create
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -25,12 +28,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.github.sebsojeda.yapper.core.domain.model.MediaUpload
 import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
+import com.github.sebsojeda.yapper.features.post.presentation.components.MediaLayout
+import com.github.sebsojeda.yapper.features.post.presentation.components.MediaPicker
+import com.github.sebsojeda.yapper.features.post.presentation.components.MediaPreview
+import java.util.UUID
 
 @Composable
 fun PostCreateScreen(
@@ -38,9 +47,10 @@ fun PostCreateScreen(
     viewModel: PostCreateViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.collectAsState()
+    val contentResolver = LocalContext.current.contentResolver
     val focusRequester = remember { FocusRequester() }
     var content by remember { mutableStateOf("") }
-    var media by remember { mutableStateOf(emptyList<ByteArray>()) }
+    var media by remember { mutableStateOf(emptyList<Uri>()) }
 
     if (state.value.isPostCreated) {
         navController.navigate(PostRoutes.PostList.route) {
@@ -65,15 +75,31 @@ fun PostCreateScreen(
                 onClick = {
                     navController.popBackStack()
                 },
+                enabled = !state.value.isLoading,
                 modifier = Modifier.align(Alignment.CenterVertically)) {
                 Text("Cancel")
             }
             Button(
-                onClick = { viewModel.createPost(content, media) },
+                onClick = {
+                    val uploads = mutableListOf<MediaUpload>()
+                    media.forEach { uri ->
+                        contentResolver.openInputStream(uri)?.buffered()?.let {
+                            val filePath = UUID.randomUUID().toString()
+                            val data = it.readBytes()
+                            val upload = MediaUpload(
+                                data = data,
+                                filePath = filePath,
+                                fileSize = data.size
+                            )
+                            uploads.add(upload)
+                        }
+                    }
+                    viewModel.createPost(content, uploads)
+                },
                 modifier = Modifier
                     .align(Alignment.CenterVertically),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
-                enabled = content.isNotBlank() || state.value.isLoading
+                enabled = content.isNotBlank() && !state.value.isLoading
             ) {
                 Text("Post")
             }
@@ -85,8 +111,7 @@ fun PostCreateScreen(
                 placeholder = { Text("What's happening?") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .focusRequester(focusRequester)
-                    .weight(1f),
+                    .focusRequester(focusRequester),
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = MaterialTheme.colorScheme.background,
                     focusedContainerColor = MaterialTheme.colorScheme.background,
@@ -94,6 +119,15 @@ fun PostCreateScreen(
                     focusedIndicatorColor = Color.Transparent,
                 )
             )
+            MediaPreview(media = media.map { it.toString() }, layout = MediaLayout.ROW)
+            Row {
+                MediaPicker(
+                    modifier = Modifier,
+                    onSelectMedia = { media = it }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+//                Camera(onImageCapture = { media = listOf(it) })
+            }
         }
     }
 }

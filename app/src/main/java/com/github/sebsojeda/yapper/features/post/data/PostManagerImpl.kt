@@ -1,16 +1,17 @@
 package com.github.sebsojeda.yapper.features.post.data
 
-import com.github.sebsojeda.yapper.core.data.dto.CreateMediaDto
+import com.github.sebsojeda.yapper.core.data.dto.MediaUploadDto
 import com.github.sebsojeda.yapper.core.domain.repository.MediaRepository
 import com.github.sebsojeda.yapper.core.domain.repository.MediaStorageRepository
+import com.github.sebsojeda.yapper.features.post.data.dto.CreateLikeDto
 import com.github.sebsojeda.yapper.features.post.data.dto.CreatePostDto
 import com.github.sebsojeda.yapper.features.post.data.dto.CreatePostMediaDto
-import com.github.sebsojeda.yapper.features.post.data.dto.GetCreateLikeDto
+import com.github.sebsojeda.yapper.features.post.data.dto.GetLikeDto
 import com.github.sebsojeda.yapper.features.post.data.dto.GetPostDto
 import com.github.sebsojeda.yapper.features.post.domain.repository.PostManager
 import com.github.sebsojeda.yapper.features.post.domain.repository.PostMediaRepository
 import com.github.sebsojeda.yapper.features.post.domain.repository.PostRepository
-import java.util.UUID
+import io.github.jan.supabase.gotrue.Auth
 import javax.inject.Inject
 
 class PostManagerImpl @Inject constructor(
@@ -18,41 +19,31 @@ class PostManagerImpl @Inject constructor(
     private val mediaRepository: MediaRepository,
     private val postMediaRepository: PostMediaRepository,
     private val mediaStorageRepository: MediaStorageRepository,
+    private val auth: Auth,
 ): PostManager {
-    override suspend fun getPosts(): List<GetPostDto> = postRepository.getPosts()
+    override suspend fun getPosts(orderColumn: String, orderDescending: Boolean, limit: Long?): List<GetPostDto> =
+        postRepository.getPosts(orderColumn, orderDescending, limit)
 
     override suspend fun getPosts(postId: String): List<GetPostDto> = postRepository.getPosts(postId)
 
     override suspend fun getPost(postId: String): GetPostDto = postRepository.getPost(postId)
 
-    override suspend fun createPost(post: CreatePostDto, media: List<ByteArray>): GetPostDto {
+    override suspend fun createPost(post: CreatePostDto, media: List<MediaUploadDto>): GetPostDto {
+        // Create post
         val newPost = postRepository.createPost(post)
 
-        // Create media
-        val createMedia = mutableListOf<CreateMediaDto>()
-        media.forEach { bytes ->
-            val filePath = UUID.randomUUID().toString()
-            mediaStorageRepository.uploadMedia(filePath, bytes)
-            createMedia.add(
-                CreateMediaDto(
-                    filePath = filePath,
-                    fileSize = bytes.size,
-                )
-            )
+        // Upload media
+        media.forEach {
+            mediaStorageRepository.uploadMedia(it.media.filePath, it.data)
         }
-        val newMedia = mediaRepository.createMedia(createMedia)
+
+        // Create media
+        val newMedia = mediaRepository.createMedia(media.map { it.media })
 
         // Create post media
-        val createPostMedia = mutableListOf<CreatePostMediaDto>()
-        newMedia.forEach {
-            createPostMedia.add(
-                CreatePostMediaDto(
-                    mediaId = it.id,
-                    postId = newPost.id,
-                )
-            )
-        }
-        val newPostMedia = postMediaRepository.createPostMedia(createPostMedia)
+        val newPostMedia = postMediaRepository.createPostMedia(newMedia.map {
+            CreatePostMediaDto(postId = newPost.id, mediaId = it.id)
+        })
 
         return newPost.copy(postMedia = newPostMedia)
     }
@@ -65,9 +56,12 @@ class PostManagerImpl @Inject constructor(
         }
     }
 
-    override suspend fun likePost(like: GetCreateLikeDto): GetCreateLikeDto =
+    override suspend fun likePost(like: CreateLikeDto): GetLikeDto =
         postRepository.likePost(like)
 
-    override suspend fun unlikePost(postId: String, userId: String) =
-        postRepository.unlikePost(postId, userId)
+    override suspend fun unlikePost(postId: String) =
+        postRepository.unlikePost(postId, auth.currentUserOrNull()!!.id)
+
+    override suspend fun searchPosts(query: String): List<GetPostDto> =
+        postRepository.searchPosts(query)
 }

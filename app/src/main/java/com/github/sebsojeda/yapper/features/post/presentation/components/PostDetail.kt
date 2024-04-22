@@ -14,11 +14,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.sebsojeda.yapper.core.Constants
 import com.github.sebsojeda.yapper.core.domain.model.Media
 import com.github.sebsojeda.yapper.features.post.domain.model.Post
 import com.github.sebsojeda.yapper.features.post.domain.model.PostMedia
 import com.github.sebsojeda.yapper.features.user.domain.model.User
-import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -55,7 +57,7 @@ fun PostDetail(
                 text = post.content,
                 modifier = Modifier.padding(bottom = 2.dp),
             )
-            Media(postMedia = post.postMedia)
+            MediaPreview(media = post.postMedia.map { it.media.path }, bucket = Constants.BUCKET_PUBLIC_MEDIA)
             Text(
                 text = parseTimestamp(post.createdAt),
                 color = MaterialTheme.colorScheme.outline,
@@ -71,12 +73,13 @@ fun PostDetail(
 }
 
 private fun parseTimestamp(timestamp: String): String {
-    val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[.SSSSSS][.SSSSS]")
+    val inputFormatter = DateTimeFormatter.ISO_DATE_TIME
     val outputFormatter = DateTimeFormatter.ofPattern("h:mm a • M/d/yy")
 
-    val dateTime = LocalDateTime.parse(timestamp, inputFormatter)
+    val dateTime = ZonedDateTime.parse(timestamp, inputFormatter)
+    val localDateTime = dateTime.withZoneSameInstant(ZoneId.systemDefault())
 
-    return dateTime.format(outputFormatter)
+    return localDateTime.format(outputFormatter)
 }
 
 @Composable

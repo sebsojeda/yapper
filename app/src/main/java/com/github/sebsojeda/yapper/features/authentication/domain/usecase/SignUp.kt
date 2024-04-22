@@ -6,6 +6,7 @@ import com.github.sebsojeda.yapper.features.user.data.dto.CreateUserDto
 import com.github.sebsojeda.yapper.features.user.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import java.util.Date
 import javax.inject.Inject
 
 class SignUp @Inject constructor(
@@ -15,13 +16,9 @@ class SignUp @Inject constructor(
     operator fun invoke(name: String, email: String, password: String): Flow<Resource<Unit>> = flow {
         emit(Resource.Loading())
         try {
-            val result = authenticationRepository.signUp(email, password)
-            if (result == null) {
-                emit(Resource.Error("An error occurred"))
-                return@flow
-            }
-            val username = "${name.split(" ")[0]}_${result.createdAt.epochSeconds}"
-            val user = CreateUserDto(result.id, username = username, name = name)
+            authenticationRepository.signUp(email, password)
+            val username = "${name.split(" ")[0]}_${Date().time}"
+            val user = CreateUserDto(username = username, name = name)
             userRepository.createUser(user)
             emit(Resource.Success(Unit))
         } catch (e: Exception) {

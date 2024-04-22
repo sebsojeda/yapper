@@ -17,8 +17,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.sebsojeda.yapper.core.Constants
+import com.github.sebsojeda.yapper.core.domain.model.Media
 import com.github.sebsojeda.yapper.core.extensions.topBorder
 import com.github.sebsojeda.yapper.features.post.domain.model.Post
+import com.github.sebsojeda.yapper.features.post.domain.model.PostMedia
 import com.github.sebsojeda.yapper.features.user.domain.model.User
 
 @Composable
@@ -59,7 +62,7 @@ fun PostListItem(
                 text = post.content,
                 modifier = Modifier.padding(bottom = 2.dp),
             )
-            Media(postMedia = post.postMedia)
+            MediaPreview(media = post.postMedia.map { it.media.path }, bucket = Constants.BUCKET_PUBLIC_MEDIA)
             Row(modifier = Modifier.padding(top = 2.dp)) {
                 Likes(likedByUser = post.likedByUser, likes = post.likes, onPostLikeClick = { onPostLikeClick() })
                 Comments(comments = post.comments, onPostCommentClick = { onPostCommentClick(post.id) })
@@ -88,7 +91,16 @@ fun PostListItemPreview() {
             comments = 100,
             createdAt = "2021-01-01T00:00:00Z",
             likedByUser = false,
-            postMedia = emptyList(),
+            postMedia = listOf(
+                PostMedia(
+                    postId = "1",
+                    mediaId = "1",
+                    media = Media(
+                        id = "1",
+                        path = "https://images.unsplash.com/photo-1710880694004-4da9ea2a2c44",
+                    ),
+                ),
+            )
         ),
         onPostClick = {},
         onPostLikeClick = {},

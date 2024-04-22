@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.supabase.postgrest)
     implementation(libs.supabase.storage)
     implementation(libs.supabase.gotrue)
+    implementation(libs.supabase.realtime)
     implementation(libs.supabase.coil.integration)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.android)

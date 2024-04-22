@@ -7,4 +7,5 @@ data class PostUseCases(
     val createPost: CreatePost,
     val likePost: LikePost,
     val unlikePost: UnlikePost,
+    val searchPosts: SearchPosts,
 )

@@ -2,7 +2,8 @@ package com.github.sebsojeda.yapper.features.post.presentation
 
 sealed class PostRoutes(val route: String) {
     data object Post : PostRoutes("post")
-    data object PostList : PostRoutes("list")
-    data object PostDetail : PostRoutes("detail")
-    data object PostCreate : PostRoutes("create")
+    data object PostList : PostRoutes("post_list")
+    data object PostDetail : PostRoutes("post_detail")
+    data object PostCreate : PostRoutes("post_create")
+    data object PostSearch : PostRoutes("post_search")
 }

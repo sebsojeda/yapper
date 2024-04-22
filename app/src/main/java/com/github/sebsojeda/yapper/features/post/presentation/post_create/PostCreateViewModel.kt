@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.sebsojeda.yapper.core.Constants
 import com.github.sebsojeda.yapper.core.Resource
+import com.github.sebsojeda.yapper.core.domain.model.MediaUpload
 import com.github.sebsojeda.yapper.features.post.domain.usecase.PostUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +29,7 @@ class PostCreateViewModel @Inject constructor(
         }
     }
 
-    fun createPost(content: String, media: List<ByteArray>) {
+    fun createPost(content: String, media: List<MediaUpload>) {
         postUseCases.createPost(content, _state.value.postId, media).onEach { result ->
             _state.value = when (result) {
                 is Resource.Loading -> _state.value.copy(isLoading = true)

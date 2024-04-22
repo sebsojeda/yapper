@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.sebsojeda.yapper.core.Constants
 import com.github.sebsojeda.yapper.core.Resource
+import com.github.sebsojeda.yapper.core.domain.model.MediaUpload
 import com.github.sebsojeda.yapper.features.post.domain.model.Post
 import com.github.sebsojeda.yapper.features.post.domain.usecase.PostUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,14 +41,17 @@ class PostDetailViewModel @Inject constructor(
         }
     }
 
-    private fun getPost(postId: String) {
+    fun getPost(postId: String) {
         postUseCases.getPost(postId).onEach { result ->
             _state.value = when (result) {
                 is Resource.Loading -> _state.value.copy(isPostLoading = true)
-                is Resource.Success -> _state.value.copy(
-                    post = result.data,
-                    isPostLoading = false
-                )
+                is Resource.Success -> {
+                    Log.d("PostDetailViewModel", "Post: ${result.data}")
+                    _state.value.copy(
+                        post = result.data,
+                        isPostLoading = false
+                    )
+                }
                 is Resource.Error -> _state.value.copy(
                     postError = result.message ?: "An unexpected error occurred",
                     isPostLoading = false
@@ -56,7 +60,7 @@ class PostDetailViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    private fun getComments(postId: String) {
+    fun getComments(postId: String) {
         postUseCases.getPostComments(postId).onEach { result ->
             _state.value = when (result) {
                 is Resource.Loading -> _state.value.copy(isCommentsLoading = true)
@@ -72,7 +76,7 @@ class PostDetailViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun onPostCommentClick(media: List<ByteArray> = emptyList()) {
+    fun onPostCommentClick(media: List<MediaUpload> = emptyList()) {
         postUseCases.createPost(content, _state.value.postId, media).onEach { result ->
             when (result) {
                 is Resource.Loading -> {

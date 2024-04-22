@@ -9,7 +9,8 @@ import androidx.navigation.navigation
 import com.github.sebsojeda.yapper.core.Constants
 import com.github.sebsojeda.yapper.features.post.presentation.post_create.PostCreateScreen
 import com.github.sebsojeda.yapper.features.post.presentation.post_detail.PostDetailScreen
-import com.github.sebsojeda.yapper.features.post.presentation.post_list.PostsListScreen
+import com.github.sebsojeda.yapper.features.post.presentation.post_list.PostListScreen
+import com.github.sebsojeda.yapper.features.post.presentation.post_search.PostSearchScreen
 
 fun NavGraphBuilder.postGraph(navController: NavHostController) {
     navigation(
@@ -19,7 +20,7 @@ fun NavGraphBuilder.postGraph(navController: NavHostController) {
         composable(
             route = PostRoutes.PostList.route
         ) {
-            PostsListScreen(navController)
+            PostListScreen(navController)
         }
         composable(
             route = PostRoutes.PostDetail.route + "/{${Constants.PARAM_POST_ID}}?${Constants.PARAM_FOCUS_REPLY}={${Constants.PARAM_FOCUS_REPLY}}",
@@ -39,6 +40,11 @@ fun NavGraphBuilder.postGraph(navController: NavHostController) {
             route = PostRoutes.PostCreate.route
         ) {
             PostCreateScreen(navController)
+        }
+        composable(
+            route = PostRoutes.PostSearch.route
+        ) {
+            PostSearchScreen(navController)
         }
     }
 }

@@ -16,6 +16,7 @@ import com.github.sebsojeda.yapper.features.post.domain.usecase.GetPostComments
 import com.github.sebsojeda.yapper.features.post.domain.usecase.GetPosts
 import com.github.sebsojeda.yapper.features.post.domain.usecase.LikePost
 import com.github.sebsojeda.yapper.features.post.domain.usecase.PostUseCases
+import com.github.sebsojeda.yapper.features.post.domain.usecase.SearchPosts
 import com.github.sebsojeda.yapper.features.post.domain.usecase.UnlikePost
 import dagger.Module
 import dagger.Provides
@@ -45,26 +46,29 @@ object PostModule {
         postRepository: PostRepository,
         mediaRepository: MediaRepository,
         postMediaRepository: PostMediaRepository,
-        mediaStorageRepository: MediaStorageRepository
+        mediaStorageRepository: MediaStorageRepository,
+        auth: Auth,
     ): PostManager {
         return PostManagerImpl(
             postRepository,
             mediaRepository,
             postMediaRepository,
-            mediaStorageRepository
+            mediaStorageRepository,
+            auth
         )
     }
 
     @Provides
     @Singleton
-    fun providesPostUseCases(postManager: PostManager, auth: Auth): PostUseCases {
+    fun providesPostUseCases(postManager: PostManager): PostUseCases {
         return PostUseCases(
-            createPost = CreatePost(postManager, auth),
+            createPost = CreatePost(postManager),
             getPost = GetPost(postManager),
             getPosts = GetPosts(postManager),
             getPostComments = GetPostComments(postManager),
-            likePost = LikePost(postManager, auth),
-            unlikePost = UnlikePost(postManager, auth)
+            likePost = LikePost(postManager),
+            unlikePost = UnlikePost(postManager),
+            searchPosts = SearchPosts(postManager)
         )
     }
 }

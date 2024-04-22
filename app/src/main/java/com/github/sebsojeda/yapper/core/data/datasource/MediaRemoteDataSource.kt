@@ -13,7 +13,7 @@ class MediaRemoteDataSource @Inject constructor(
 ) {
     suspend fun createMedia(media: List<CreateMediaDto>): List<GetMediaDto> =
         withContext(Dispatchers.IO) {
-            dataSource.from(Constants.TABLE_POST_MEDIA)
+            dataSource.from(Constants.TABLE_MEDIA)
                 .insert(media) { select() }
                 .decodeList<GetMediaDto>()
         }

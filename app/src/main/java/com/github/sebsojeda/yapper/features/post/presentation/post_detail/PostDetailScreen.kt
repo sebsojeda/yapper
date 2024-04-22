@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.github.sebsojeda.yapper.R
+import com.github.sebsojeda.yapper.core.Constants
 import com.github.sebsojeda.yapper.core.components.YapperLayout
 import com.github.sebsojeda.yapper.core.extensions.topBorder
 import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
@@ -56,17 +57,18 @@ fun PostDetailScreen(
     val focusRequester = remember { FocusRequester() }
     var hasFocus by remember { mutableStateOf(false) }
 
+    LaunchedEffect(state.postId) {
+        viewModel.getPost(state.postId)
+        viewModel.getComments(state.postId)
+    }
+
     YapperLayout(
         navController = navController,
         title = { Text(text = "Post") },
         navigationIcon = {
             IconButton(
                 onClick = {
-                    navController.navigate(PostRoutes.PostList.route) {
-                        popUpTo(PostRoutes.PostList.route) {
-                            inclusive = false
-                        }
-                    }
+                    navController.popBackStack()
                 }
             ) {
                 Icon(
@@ -123,7 +125,7 @@ fun PostDetailScreen(
                         post = comment,
                         onPostClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId") },
                         onPostLikeClick = { viewModel.onCommentLikeClick(comment) },
-                        onPostCommentClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId") }
+                        onPostCommentClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId?${Constants.PARAM_FOCUS_REPLY}=true") }
                     )
                 }
             }

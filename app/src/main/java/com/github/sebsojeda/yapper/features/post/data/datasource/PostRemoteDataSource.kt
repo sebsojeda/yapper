@@ -1,8 +1,9 @@
 package com.github.sebsojeda.yapper.features.post.data.datasource
 
 import com.github.sebsojeda.yapper.core.Constants
+import com.github.sebsojeda.yapper.features.post.data.dto.CreateLikeDto
 import com.github.sebsojeda.yapper.features.post.data.dto.CreatePostDto
-import com.github.sebsojeda.yapper.features.post.data.dto.GetCreateLikeDto
+import com.github.sebsojeda.yapper.features.post.data.dto.GetLikeDto
 import com.github.sebsojeda.yapper.features.post.data.dto.GetPostDto
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Columns
@@ -14,11 +15,12 @@ import javax.inject.Inject
 class PostRemoteDataSource @Inject constructor(
     private val dataSource: Postgrest,
 ) {
-    suspend fun getPosts(): List<GetPostDto> =
+    suspend fun getPosts(orderColumn: String, orderDescending: Boolean, limit: Long?): List<GetPostDto> =
         withContext(Dispatchers.IO) {
             dataSource.from(Constants.TABLE_POSTS)
                 .select(Columns.raw("*, likes:likes(*), post_media:post_media(*, media:media(*)), user:user_id(*)")) {
-                    order("created_at", Order.DESCENDING)
+                    order(orderColumn, if (orderDescending) Order.DESCENDING else Order.ASCENDING)
+                    if (limit != null) limit(limit)
                 }
                 .decodeList<GetPostDto>()
         }
@@ -54,11 +56,11 @@ class PostRemoteDataSource @Inject constructor(
                 .delete { filter { eq("id", postId) } }
         }
 
-    suspend fun likePost(like: GetCreateLikeDto): GetCreateLikeDto =
+    suspend fun likePost(like: CreateLikeDto): GetLikeDto =
         withContext(Dispatchers.IO) {
             dataSource.from(Constants.TABLE_LIKES)
                 .insert(like) { select() }
-                .decodeSingle<GetCreateLikeDto>()
+                .decodeSingle<GetLikeDto>()
         }
 
     suspend fun unlikePost(postId: String, userId: String): Unit =
@@ -70,5 +72,15 @@ class PostRemoteDataSource @Inject constructor(
                         eq("user_id", userId)
                     }
                 }
+        }
+
+    suspend fun searchPosts(query: String): List<GetPostDto> =
+        withContext(Dispatchers.IO) {
+            dataSource.from(Constants.TABLE_POSTS)
+                .select(Columns.raw("*, likes:likes(*), post_media:post_media(*, media:media(*)), user:user_id(*)")) {
+                    filter {
+                        ilike("content", "%$query%")
+                    }
+                }.decodeList<GetPostDto>()
         }
 }

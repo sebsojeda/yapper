@@ -12,7 +12,7 @@ class MediaStorageRemoteDataSource @Inject constructor(
     suspend fun uploadMedia(path: String, data: ByteArray): Unit =
         withContext(Dispatchers.IO) {
             dataSource.from(Constants.BUCKET_PUBLIC_MEDIA)
-                .upload(path, data, upsert = true)
+                .upload(path, data, upsert = false)
         }
 
     suspend fun deleteMedia(path: String): Unit =

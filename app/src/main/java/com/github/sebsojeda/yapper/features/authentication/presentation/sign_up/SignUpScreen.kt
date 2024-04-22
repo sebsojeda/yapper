@@ -1,5 +1,6 @@
 package com.github.sebsojeda.yapper.features.authentication.presentation.sign_up
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -51,10 +52,6 @@ fun SignUpScreen(
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-
-    if (state.value.isPendingEmailConfirmation) {
-        navController.navigate(AuthenticationRoutes.SignUpConfirmation.route + "/$email")
-    }
 
     Scaffold(
         topBar = {
@@ -182,6 +179,7 @@ fun SignUpScreen(
             }
             if (state.value.error.isNotEmpty()) {
                 // show toast message
+                Log.e("SignUpScreen", "Error: ${state.value.error}")
                 val toast = Toast.makeText(
                     LocalContext.current,
                     state.value.error,

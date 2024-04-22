@@ -16,7 +16,7 @@ data class GetPostDto(
     @SerialName("likes_count") val likesCount: Int,
     @SerialName("comments_count") val commentsCount: Int,
     @SerialName("created_at") val createdAt: String,
-    @SerialName("likes") val likes: List<GetCreateLikeDto>,
+    @SerialName("likes") val likes: List<CreateLikeDto>,
     @SerialName("post_media") val postMedia: List<GetPostMediaDto>,
 )
 

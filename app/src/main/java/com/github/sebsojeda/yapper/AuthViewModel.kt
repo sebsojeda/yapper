@@ -18,10 +18,10 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val auth: Auth,
-    private val userRepository: UserRepository,
+    private val userRepository: UserRepository
 ): ViewModel() {
     private val _isAuthenticated = MutableStateFlow(auth.currentUserOrNull() != null)
-    private val _currentUser: MutableStateFlow<User?> = MutableStateFlow(null)
+    private val _currentUser = MutableStateFlow<User?>(null)
     val isAuthenticated = _isAuthenticated.asStateFlow()
     val currentUser = _currentUser.asStateFlow()
 
@@ -29,11 +29,9 @@ class AuthViewModel @Inject constructor(
         auth.sessionStatus.onEach { status ->
             _isAuthenticated.value = when (status) {
                 is SessionStatus.Authenticated -> {
-                    _currentUser.value = userRepository.getUser(auth.currentUserOrNull()!!.id).toUser()
                     true
                 }
                 else -> {
-                    _currentUser.value = null
                     false
                 }
             }
@@ -44,6 +42,14 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 auth.signOut()
+            } catch (_: Exception) { }
+        }
+    }
+
+    fun currentUser() {
+        viewModelScope.launch {
+            try {
+                _currentUser.value = userRepository.getUser(auth.currentUserOrNull()?.id ?: "").toUser()
             } catch (_: Exception) { }
         }
     }

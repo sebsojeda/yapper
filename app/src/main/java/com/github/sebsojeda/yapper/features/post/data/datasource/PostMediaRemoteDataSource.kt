@@ -4,6 +4,7 @@ import com.github.sebsojeda.yapper.core.Constants
 import com.github.sebsojeda.yapper.features.post.data.dto.CreatePostMediaDto
 import com.github.sebsojeda.yapper.features.post.data.dto.GetPostMediaDto
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -14,7 +15,7 @@ class PostMediaRemoteDataSource @Inject constructor(
     suspend fun createPostMedia(postMedia: List<CreatePostMediaDto>): List<GetPostMediaDto> =
         withContext(Dispatchers.IO) {
             dataSource.from(Constants.TABLE_POST_MEDIA)
-                .insert(postMedia) { select() }
+                .insert(postMedia) { select(Columns.raw("*, media:media_id(*)")) }
                 .decodeList<GetPostMediaDto>()
         }
 }

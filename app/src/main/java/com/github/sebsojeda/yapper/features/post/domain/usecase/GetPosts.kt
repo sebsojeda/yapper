@@ -15,11 +15,11 @@ import javax.inject.Inject
 class GetPosts @Inject constructor(
     private val postManager: PostManager,
 ) {
-    operator fun invoke(refreshInterval: Long): Flow<Resource<List<Post>>> = flow {
+    operator fun invoke(refreshInterval: Long, orderColumn: String = "created_at", orderDescending: Boolean = true, limit: Long? = null): Flow<Resource<List<Post>>> = flow {
         try {
             emit(Resource.Loading())
             while (true) {
-                val posts = postManager.getPosts().map { it.toPost() }
+                val posts = postManager.getPosts(orderColumn, orderDescending, limit).map { it.toPost() }
                 emit(Resource.Success(posts))
                 delay(refreshInterval)
             }

@@ -2,7 +2,9 @@ package com.github.sebsojeda.yapper.features.authentication.presentation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.github.sebsojeda.yapper.core.Constants
 import com.github.sebsojeda.yapper.features.authentication.presentation.sign_in.SignInScreen
@@ -26,7 +28,12 @@ fun NavGraphBuilder.authGraph(navController: NavHostController) {
             SignUpScreen(navController)
         }
         composable(
-            route = AuthenticationRoutes.SignUpConfirmation.route + "/{${Constants.PARAM_EMAIL}}"
+            route = AuthenticationRoutes.SignUpConfirmation.route + "/{${Constants.PARAM_EMAIL}}",
+            arguments = listOf(
+                navArgument(Constants.PARAM_EMAIL) {
+                    type = NavType.StringType
+                }
+            )
         ) {
             SignUpConfirmationScreen(navController)
         }

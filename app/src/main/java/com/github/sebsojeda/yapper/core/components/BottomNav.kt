@@ -46,7 +46,7 @@ fun BottomNav(
         )
         BottomNavItem(
             onClick = {
-                navController.navigate(PostRoutes.PostList.route) {
+                navController.navigate(PostRoutes.PostSearch.route) {
                     launchSingleTop = true
                     restoreState = true
                 }
