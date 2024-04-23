@@ -59,6 +59,8 @@ fun PostListItem(
                     modifier = Modifier,
                     text = " • " + TimeAgo.using(post.createdAt.toInstant().toEpochMilliseconds()),
                     color = Colors.Neutral400,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Text(

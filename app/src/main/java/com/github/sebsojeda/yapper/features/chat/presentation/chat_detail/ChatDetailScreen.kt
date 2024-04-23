@@ -143,7 +143,8 @@ fun ChatDetailScreen(
                     if (messageDay != previousMessageDay) {
                         Row(
                             horizontalArrangement = Arrangement.Center,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
                                 .topBorder(1.dp, Colors.Neutral200)
                                 .padding(8.dp)
                         ) {

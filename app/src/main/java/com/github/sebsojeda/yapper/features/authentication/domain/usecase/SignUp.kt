@@ -6,7 +6,6 @@ import com.github.sebsojeda.yapper.features.user.data.dto.CreateUserDto
 import com.github.sebsojeda.yapper.features.user.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import java.util.Date
 import javax.inject.Inject
 
 class SignUp @Inject constructor(
@@ -17,7 +16,8 @@ class SignUp @Inject constructor(
         emit(Resource.Loading())
         try {
             authenticationRepository.signUp(email, password)
-            val username = "${name.split(" ")[0]}_${Date().time}"
+            val random = ('a'..'z').toList().shuffled().subList(0, 6).joinToString("")
+            val username = "${name.split(" ")[0]}_${random}".lowercase()
             val user = CreateUserDto(username = username, name = name)
             userRepository.createUser(user)
             emit(Resource.Success(Unit))
