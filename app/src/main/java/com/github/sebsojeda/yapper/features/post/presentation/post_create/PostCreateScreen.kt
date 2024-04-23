@@ -1,7 +1,6 @@
 package com.github.sebsojeda.yapper.features.post.presentation.post_create
 
 import android.net.Uri
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -27,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,6 +36,7 @@ import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
 import com.github.sebsojeda.yapper.features.post.presentation.components.MediaLayout
 import com.github.sebsojeda.yapper.features.post.presentation.components.MediaPicker
 import com.github.sebsojeda.yapper.features.post.presentation.components.MediaPreview
+import com.github.sebsojeda.yapper.ui.theme.Colors
 import java.util.UUID
 
 @Composable
@@ -63,7 +61,6 @@ fun PostCreateScreen(
     }
 
     Column(modifier = Modifier
-        .background(color = MaterialTheme.colorScheme.background)
     ) {
         Row(
             modifier = Modifier
@@ -77,7 +74,7 @@ fun PostCreateScreen(
                 },
                 enabled = !state.value.isLoading,
                 modifier = Modifier.align(Alignment.CenterVertically)) {
-                Text("Cancel")
+                Text("Cancel", color = Colors.Indigo500)
             }
             Button(
                 onClick = {
@@ -98,7 +95,9 @@ fun PostCreateScreen(
                 },
                 modifier = Modifier
                     .align(Alignment.CenterVertically),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Colors.Indigo500
+                ),
                 enabled = content.isNotBlank() && !state.value.isLoading
             ) {
                 Text("Post")
@@ -108,15 +107,15 @@ fun PostCreateScreen(
             TextField(
                 value = content,
                 onValueChange = { content = it },
-                placeholder = { Text("What's happening?") },
+                placeholder = { Text("What's happening?", color = Colors.Neutral400) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester),
                 colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = MaterialTheme.colorScheme.background,
-                    focusedContainerColor = MaterialTheme.colorScheme.background,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedContainerColor = Colors.Transparent,
+                    focusedContainerColor = Colors.Transparent,
+                    unfocusedIndicatorColor = Colors.Transparent,
+                    focusedIndicatorColor = Colors.Transparent,
                 )
             )
             MediaPreview(media = media.map { it.toString() }, layout = MediaLayout.ROW)

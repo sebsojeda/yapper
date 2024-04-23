@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import com.github.sebsojeda.yapper.R
 import com.github.sebsojeda.yapper.core.Constants
+import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @Composable
 fun MediaPicker(onSelectMedia: (List<Uri>) -> Unit, modifier: Modifier = Modifier) {
@@ -25,7 +26,7 @@ fun MediaPicker(onSelectMedia: (List<Uri>) -> Unit, modifier: Modifier = Modifie
                 PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)
             )
         }) {
-            Icon(painter = painterResource(id = R.drawable.photo_outline), contentDescription = null)
+            Icon(painter = painterResource(id = R.drawable.photo_outline), contentDescription = null, tint = Colors.Neutral950)
         }
     }
 

@@ -1,6 +1,5 @@
 package com.github.sebsojeda.yapper.features.post.presentation.post_list
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -10,7 +9,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,6 +25,7 @@ import com.github.sebsojeda.yapper.core.Constants
 import com.github.sebsojeda.yapper.core.components.YapperLayout
 import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
 import com.github.sebsojeda.yapper.features.post.presentation.components.PostListItem
+import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @Composable
 fun PostListScreen(
@@ -51,7 +50,9 @@ fun PostListScreen(
             FloatingActionButton(
                 onClick = { navController.navigate(PostRoutes.PostCreate.route) },
                 modifier = Modifier,
-                shape = CircleShape
+                shape = CircleShape,
+                containerColor = Colors.Indigo500,
+                contentColor = Colors.White
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.plus_outline),
@@ -61,9 +62,7 @@ fun PostListScreen(
         }
     ) { innerPadding ->
         Box(
-            modifier = Modifier
-                .padding(innerPadding)
-                .background(color = MaterialTheme.colorScheme.background)
+            modifier = Modifier.padding(innerPadding)
         ) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(state.value.posts) { post ->

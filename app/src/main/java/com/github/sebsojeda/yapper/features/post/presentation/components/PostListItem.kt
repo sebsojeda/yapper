@@ -7,22 +7,21 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.marlonlom.utilities.timeago.TimeAgo
 import com.github.sebsojeda.yapper.core.Constants
-import com.github.sebsojeda.yapper.core.domain.model.Media
 import com.github.sebsojeda.yapper.core.extensions.topBorder
 import com.github.sebsojeda.yapper.features.post.domain.model.Post
-import com.github.sebsojeda.yapper.features.post.domain.model.PostMedia
 import com.github.sebsojeda.yapper.features.user.domain.model.User
+import com.github.sebsojeda.yapper.ui.theme.Colors
+import kotlinx.datetime.toInstant
 
 @Composable
 fun PostListItem(
@@ -35,7 +34,7 @@ fun PostListItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onPostClick(post.id) }
-            .topBorder(1.dp, Color.LightGray)
+            .topBorder(1.dp, Colors.Neutral200)
             .padding(8.dp)
     ) {
         Avatar(path = post.user.avatar?.path, name = post.user.name, size = 48)
@@ -45,15 +44,21 @@ fun PostListItem(
                 Text(
                     modifier = Modifier.padding(end = 2.dp),
                     fontWeight = FontWeight.Bold,
+                    color = Colors.Neutral950,
                     text = post.user.name,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = "@${post.user.username}",
-                    color = MaterialTheme.colorScheme.outline,
+                    color = Colors.Neutral400,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    modifier = Modifier,
+                    text = " • " + TimeAgo.using(post.createdAt.toInstant().toEpochMilliseconds()),
+                    color = Colors.Neutral400,
                 )
             }
             Text(
@@ -91,16 +96,7 @@ fun PostListItemPreview() {
             comments = 100,
             createdAt = "2021-01-01T00:00:00Z",
             likedByUser = false,
-            postMedia = listOf(
-                PostMedia(
-                    postId = "1",
-                    mediaId = "1",
-                    media = Media(
-                        id = "1",
-                        path = "https://images.unsplash.com/photo-1710880694004-4da9ea2a2c44",
-                    ),
-                ),
-            )
+            postMedia = emptyList()
         ),
         onPostClick = {},
         onPostLikeClick = {},

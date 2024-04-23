@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.github.sebsojeda.yapper.AuthViewModel
+import com.github.sebsojeda.yapper.ui.theme.Colors
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,16 +62,19 @@ fun YapperLayout(
                     Text(
                         text = user.name,
                         fontWeight = FontWeight.Bold,
+                        color = Colors.Neutral950,
                         modifier = Modifier.padding(top = 8.dp)
                     )
                     Text(
                         text = "@${user.username}",
+                        color = Colors.Neutral400,
                         fontSize = MaterialTheme.typography.bodySmall.fontSize,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                     TextButton(
                         onClick = { viewModel.signOut() },
-                        contentPadding = PaddingValues(0.dp)
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.textButtonColors(contentColor = Colors.Indigo500)
                     ) {
                         Text(text = "Sign Out")
                     }

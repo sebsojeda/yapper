@@ -19,6 +19,7 @@ import com.github.sebsojeda.yapper.core.domain.model.Media
 import com.github.sebsojeda.yapper.features.post.domain.model.Post
 import com.github.sebsojeda.yapper.features.post.domain.model.PostMedia
 import com.github.sebsojeda.yapper.features.user.domain.model.User
+import com.github.sebsojeda.yapper.ui.theme.Colors
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -43,11 +44,12 @@ fun PostDetail(
                 Text(
                     modifier = Modifier,
                     fontWeight = FontWeight.Bold,
-                    text = post.user.name
+                    text = post.user.name,
+                    color = Colors.Neutral950
                 )
                 Text(
                     text = "@${post.user.username}",
-                    color = MaterialTheme.colorScheme.outline,
+                    color = Colors.Neutral400,
                 )
             }
         }
@@ -60,7 +62,7 @@ fun PostDetail(
             MediaPreview(media = post.postMedia.map { it.media.path }, bucket = Constants.BUCKET_PUBLIC_MEDIA)
             Text(
                 text = parseTimestamp(post.createdAt),
-                color = MaterialTheme.colorScheme.outline,
+                color = Colors.Neutral400,
                 fontStyle = MaterialTheme.typography.bodySmall.fontStyle,
                 modifier = Modifier.padding(top = 8.dp)
             )

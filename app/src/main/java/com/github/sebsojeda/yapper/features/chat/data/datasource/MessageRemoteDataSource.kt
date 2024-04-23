@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
@@ -41,8 +42,12 @@ class MessageRemoteDataSource @Inject constructor(
         }
 
         val transformFlow =  channelFlow.transform { action ->
-            @Serializable data class RecordId(val id: String)
-            val record = action.decodeRecord<RecordId>()
+            @Serializable data class Record(
+                @SerialName("id") val id: String,
+                @SerialName("conversation_id") val conversationId: String
+            )
+            val record = action.decodeRecord<Record>()
+            if (record.conversationId != conversationId) return@transform
             val message = dataSource.from(Constants.TABLE_MESSAGES)
                 .select(Columns.raw("*, user:user_id(*)")) {
                     filter { eq("id", record.id) }

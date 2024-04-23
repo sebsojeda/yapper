@@ -14,33 +14,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val DarkColorScheme = darkColorScheme(
-    primary = White,
-    background = Neutral950,
-    primaryContainer = Neutral200,
-    secondary = White,
-    tertiary = Indigo500,
-    outline = Neutral400,
-)
+private val DarkColorScheme = darkColorScheme()
 
-private val LightColorScheme = lightColorScheme(
-    primary = Neutral950,
-    background = White,
-    primaryContainer = Neutral200,
-    secondary = White,
-    tertiary = Indigo500,
-    outline = Neutral400,
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
-)
+private val LightColorScheme = lightColorScheme()
 
 @Composable
 fun YapperTheme(

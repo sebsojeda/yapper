@@ -1,7 +1,6 @@
 package com.github.sebsojeda.yapper.features.chat.presentation.chat_detail
 
 import Avatar
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,11 +30,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -47,6 +44,11 @@ import com.github.sebsojeda.yapper.R
 import com.github.sebsojeda.yapper.core.components.YapperLayout
 import com.github.sebsojeda.yapper.core.extensions.topBorder
 import com.github.sebsojeda.yapper.features.chat.presentation.ChatRoutes
+import com.github.sebsojeda.yapper.features.chat.presentation.components.ChatBubble
+import com.github.sebsojeda.yapper.ui.theme.Colors
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun ChatDetailScreen(
@@ -77,7 +79,8 @@ fun ChatDetailScreen(
                         text = it.name,
                         modifier = Modifier.padding(top = 8.dp),
                         fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = Colors.Neutral950
                     )
                 }
             }
@@ -99,15 +102,12 @@ fun ChatDetailScreen(
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(innerPadding)
                 .fillMaxSize()
-                .background(color = MaterialTheme.colorScheme.background)
+                .padding(innerPadding)
         ) {
             if (state.isLoading) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(color = MaterialTheme.colorScheme.background),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
@@ -116,43 +116,58 @@ fun ChatDetailScreen(
             LazyColumn(
                 state = columnState,
                 modifier = Modifier
-                    .fillMaxWidth()
                     .weight(1f)
                     .pointerInput(Unit) {
                         detectTapGestures { localFocusManager.clearFocus() }
                     }
             ) {
                 items(state.messages) { message ->
-                    val horizontalArrangement = if (message.user.id == participant?.id) {
-                        Arrangement.Start
+                    val align = if (message.user.id == participant?.id) {
+                        Alignment.Start
                     } else {
-                        Arrangement.End
+                        Alignment.End
                     }
                     val color = if (message.user.id == participant?.id) {
-                        Color.LightGray
+                        Colors.Neutral400
                     } else {
-                        MaterialTheme.colorScheme.tertiary
+                        // light blue
+                        Colors.Indigo500
                     }
-                    Row(
-                        horizontalArrangement = horizontalArrangement,
-                        modifier = Modifier.fillMaxWidth().padding(8.dp),
-                    ) {
-                        Text(
-                            text = message.content,
-                            color = Color.White,
-                            modifier = Modifier
-                                .background(color = color)
+                    val messageDay = parseDay(message.createdAt)
+                    val previousMessageIndex = state.messages.indexOf(message) - 1
+                    val previousMessageDay = if (previousMessageIndex >= 0) {
+                        parseDay(state.messages[previousMessageIndex].createdAt)
+                    } else {
+                        ""
+                    }
+                    if (messageDay != previousMessageDay) {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth()
+                                .topBorder(1.dp, Colors.Neutral200)
                                 .padding(8.dp)
-                                .clip(MaterialTheme.shapes.extraLarge)
-                        )
+                        ) {
+                            Text(
+                                text = messageDay,
+                                modifier = Modifier,
+                                color = Colors.Neutral400,
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
+                    ChatBubble(
+                        message = message.content,
+                        align = align,
+                        color = color,
+                        timestamp = message.createdAt
+                    )
                 }
             }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(color = MaterialTheme.colorScheme.background)
-                    .topBorder(1.dp, Color.LightGray)
+                    .topBorder(1.dp, Colors.Neutral200)
                     .padding(8.dp),
             ) {
                 if (hasFocus) {
@@ -164,7 +179,7 @@ fun ChatDetailScreen(
                             .align(Alignment.End)
                             .padding(bottom = 8.dp),
                         enabled = viewModel.content.isNotBlank(),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                        colors = ButtonDefaults.buttonColors(containerColor = Colors.Indigo500)
                     ) {
                         Text("Send")
                     }
@@ -172,16 +187,16 @@ fun ChatDetailScreen(
                 TextField(
                     value = viewModel.content,
                     onValueChange = { viewModel.onContentChange(it) },
-                    placeholder = { Text("Start a message") },
+                    placeholder = { Text("Start a message", color = Colors.Neutral400) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester)
                         .onFocusChanged { hasFocus = it.isFocused },
                     colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color.LightGray,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedContainerColor = Color.LightGray,
-                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedContainerColor = Colors.Neutral200,
+                        unfocusedIndicatorColor = Colors.Transparent,
+                        focusedContainerColor = Colors.Neutral200,
+                        focusedIndicatorColor = Colors.Transparent,
                     ),
                     shape = MaterialTheme.shapes.extraLarge
                 )
@@ -194,4 +209,15 @@ fun ChatDetailScreen(
             focusRequester.requestFocus()
         }
     }
+}
+
+fun parseDay(timestamp: String): String {
+    if (timestamp.isEmpty()) return ""
+    val inputFormatter = DateTimeFormatter.ISO_DATE_TIME
+    val outputFormatter = DateTimeFormatter.ofPattern("MMMM d, yyyy")
+
+    val dateTime = ZonedDateTime.parse(timestamp, inputFormatter)
+    val localDateTime = dateTime.withZoneSameInstant(ZoneId.systemDefault())
+
+    return localDateTime.format(outputFormatter)
 }

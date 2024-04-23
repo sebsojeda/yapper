@@ -1,25 +1,17 @@
 package com.github.sebsojeda.yapper.features.authentication.presentation.sign_up
 
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,18 +21,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.github.sebsojeda.yapper.R
 import com.github.sebsojeda.yapper.features.authentication.presentation.AuthenticationRoutes
+import com.github.sebsojeda.yapper.features.authentication.presentation.components.ActionButton
+import com.github.sebsojeda.yapper.features.authentication.presentation.components.PasswordInput
+import com.github.sebsojeda.yapper.features.authentication.presentation.components.TextInput
+import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,7 +65,7 @@ fun SignUpScreen(
                 }
             )
         }
-    ) {innerPadding ->
+    ) { innerPadding ->
         Box(
             contentAlignment = Alignment.BottomCenter,
             modifier = Modifier
@@ -86,68 +78,28 @@ fun SignUpScreen(
                     fontWeight = FontWeight.Bold,
                     fontSize = MaterialTheme.typography.titleLarge.fontSize,
                     modifier = Modifier.padding(bottom = 32.dp),
+                    color = Colors.Neutral950
                 )
-                TextField(
+                TextInput(
                     value = name,
                     onValueChange = { name = it },
-                    placeholder = { Text(text = "Name") },
-                    modifier = Modifier
-                        .fillMaxWidth(0.8f),
-                    shape = MaterialTheme.shapes.small,
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.LightGray,
-                        focusedContainerColor = Color.Transparent,
-                        focusedIndicatorColor = MaterialTheme.colorScheme.tertiary,
-                    ),
-                    singleLine = true,
+                    placeholder = "Name",
+                    isError = state.value.error.isNotEmpty() && name.isEmpty()
                 )
-                TextField(
+                TextInput(
                     value = email,
                     onValueChange = { email = it },
-                    placeholder = { Text(text = "Email") },
-                    modifier = Modifier
-                        .fillMaxWidth(0.8f),
-                    shape = MaterialTheme.shapes.small,
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.LightGray,
-                        focusedContainerColor = Color.Transparent,
-                        focusedIndicatorColor = MaterialTheme.colorScheme.tertiary,
-                    ),
-                    singleLine = true,
+                    placeholder = "Email",
+                    isError = state.value.error.isNotEmpty() && email.isEmpty()
                 )
-                TextField(
+                PasswordInput(
                     value = password,
                     onValueChange = { password = it },
-                    placeholder = { Text(text = "Password") },
-                    modifier = Modifier
-                        .fillMaxWidth(0.8f),
-                    shape = MaterialTheme.shapes.small,
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.LightGray,
-                        focusedContainerColor = Color.Transparent,
-                        focusedIndicatorColor = MaterialTheme.colorScheme.tertiary,
-                    ),
-                    singleLine = true,
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    placeholder = "Password",
+                    isError = state.value.error.isNotEmpty() && password.length < 6
                 )
-                Button(
-                    onClick = { viewModel.signUp(name, email, password) },
-                    enabled = !state.value.isLoading,
-                    modifier = Modifier
-                        .fillMaxWidth(0.8f)
-                        .padding(top = 32.dp),
-                    shape = MaterialTheme.shapes.small,
-                    contentPadding = PaddingValues(14.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.tertiary,
-                        contentColor = Color.White,
-                    ),
-                ) {
-                    Text(text = "Sign up")
+                ActionButton(text = "Sign up", enabled = !state.value.isLoading, modifier = Modifier.padding(top = 32.dp)) {
+                    viewModel.signUp(name, email, password)
                 }
                 Text(
                     text = "or",
@@ -157,35 +109,12 @@ fun SignUpScreen(
                         .fillMaxWidth(0.8f)
                         .padding(vertical = 8.dp)
                 )
-                Button(
-                    onClick = { navController.navigate(AuthenticationRoutes.SignIn.route) },
-                    enabled = !state.value.isLoading,
-                    modifier = Modifier
-                        .fillMaxWidth(0.8f)
-                        .padding(bottom = 32.dp)
-                        .border(
-                            width = 1.dp,
-                            color = Color.LightGray,
-                            shape = MaterialTheme.shapes.small
-                        ),
-                    shape = MaterialTheme.shapes.small,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = MaterialTheme.colorScheme.tertiary,
-                    ),
-                ) {
-                    Text(text = "Sign in")
+                ActionButton(text = "Sign in", enabled = !state.value.isLoading, primary = false, modifier = Modifier.padding(bottom = 32.dp)) {
+                    navController.navigate(AuthenticationRoutes.SignIn.route)
                 }
             }
             if (state.value.error.isNotEmpty()) {
-                // show toast message
                 Log.e("SignUpScreen", "Error: ${state.value.error}")
-                val toast = Toast.makeText(
-                    LocalContext.current,
-                    state.value.error,
-                    Toast.LENGTH_SHORT
-                )
-                toast.show()
             }
         }
     }

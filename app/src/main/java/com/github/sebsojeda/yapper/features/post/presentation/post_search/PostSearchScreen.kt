@@ -22,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
@@ -35,6 +34,7 @@ import com.github.sebsojeda.yapper.core.components.YapperLayout
 import com.github.sebsojeda.yapper.core.extensions.bottomBorder
 import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
 import com.github.sebsojeda.yapper.features.post.presentation.components.PostListItem
+import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @Composable
 fun PostSearchScreen(
@@ -54,12 +54,12 @@ fun PostSearchScreen(
                     search = it
                     viewModel.searchPosts(it)
                 },
-                placeholder = { Text(text = "Search") },
+                placeholder = { Text(text = "Search", color = Colors.Neutral400) },
                 colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.LightGray,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedContainerColor = Color.LightGray,
-                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedContainerColor = Colors.Neutral200,
+                    unfocusedIndicatorColor = Colors.Transparent,
+                    focusedContainerColor = Colors.Neutral200,
+                    focusedIndicatorColor = Colors.Transparent,
                 ),
                 shape = MaterialTheme.shapes.extraLarge,
                 singleLine = true,
@@ -69,7 +69,8 @@ fun PostSearchScreen(
                 leadingIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.magnifying_glass_outline),
-                        contentDescription = null
+                        contentDescription = null,
+                        tint = Colors.Neutral400
                     )
                 },
                 keyboardActions = KeyboardActions(
@@ -93,9 +94,9 @@ fun PostSearchScreen(
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 item {
                     if (search.isEmpty()) {
-                        Text(text = "Popular", modifier = Modifier.padding(16.dp).bottomBorder(2.dp, MaterialTheme.colorScheme.tertiary))
+                        Text(text = "Popular", modifier = Modifier.padding(16.dp).bottomBorder(2.dp, Colors.Indigo500))
                     } else {
-                        Text(text = "Search results for \"$search\"", modifier = Modifier.padding(16.dp))
+                        Text(text = "Search results for \"$search\"", color = Colors.Neutral400, modifier = Modifier.padding(16.dp))
                     }
                 }
                 items(state.value.posts) { post ->

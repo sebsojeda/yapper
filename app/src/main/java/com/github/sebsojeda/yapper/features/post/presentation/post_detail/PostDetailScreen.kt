@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -45,6 +44,7 @@ import com.github.sebsojeda.yapper.core.extensions.topBorder
 import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
 import com.github.sebsojeda.yapper.features.post.presentation.components.PostDetail
 import com.github.sebsojeda.yapper.features.post.presentation.components.PostListItem
+import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @Composable
 fun PostDetailScreen(
@@ -133,7 +133,7 @@ fun PostDetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(color = MaterialTheme.colorScheme.background)
-                    .topBorder(1.dp, Color.LightGray)
+                    .topBorder(1.dp, Colors.Neutral200)
                     .padding(8.dp),
             ) {
                 if (hasFocus) {
@@ -147,7 +147,7 @@ fun PostDetailScreen(
                             .align(Alignment.End)
                             .padding(bottom = 8.dp),
                         enabled = viewModel.content.isNotBlank(),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                        colors = ButtonDefaults.buttonColors(containerColor = Colors.Indigo500)
                     ) {
                         Text("Reply")
                     }
@@ -155,16 +155,16 @@ fun PostDetailScreen(
                 TextField(
                     value = viewModel.content,
                     onValueChange = { viewModel.onContentChange(it) },
-                    placeholder = { Text("Post your reply") },
+                    placeholder = { Text("Post your reply", color = Colors.Neutral400) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester)
                         .onFocusChanged { hasFocus = it.isFocused },
                     colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color.LightGray,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedContainerColor = Color.LightGray,
-                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedContainerColor = Colors.Neutral200,
+                        unfocusedIndicatorColor = Colors.Transparent,
+                        focusedContainerColor = Colors.Neutral200,
+                        focusedIndicatorColor = Colors.Transparent,
                     ),
                     shape = MaterialTheme.shapes.extraLarge
                 )
