@@ -33,7 +33,7 @@ import com.github.sebsojeda.yapper.core.Constants
 import com.github.sebsojeda.yapper.core.components.YapperLayout
 import com.github.sebsojeda.yapper.core.extensions.bottomBorder
 import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
-import com.github.sebsojeda.yapper.features.post.presentation.components.PostListItem
+import com.github.sebsojeda.yapper.features.post.presentation.components.CommentListItem
 import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @Composable
@@ -100,11 +100,12 @@ fun PostSearchScreen(
                     }
                 }
                 items(state.value.posts) { post ->
-                    PostListItem(
+                    CommentListItem(
                         post = post,
                         onPostClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId") },
                         onPostLikeClick = { viewModel.onPostLikeClick(post) },
-                        onPostCommentClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId?${Constants.PARAM_FOCUS_REPLY}=true") }
+                        onPostCommentClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId?${Constants.PARAM_FOCUS_REPLY}=true") },
+                        onPostReferenceClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId") }
                     )
                 }
             }

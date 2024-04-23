@@ -2,12 +2,11 @@ package com.github.sebsojeda.yapper.features.post.domain.model
 
 import com.github.sebsojeda.yapper.features.user.domain.model.User
 
-data class Post(
+data class Comment(
     val id: String,
     val userId: String,
     val user: User,
     val postId: String?,
-    val postReference: PostReference?,
     val content: String,
     val likes: Int,
     val comments: Int,

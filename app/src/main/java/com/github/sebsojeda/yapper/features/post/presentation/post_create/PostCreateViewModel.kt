@@ -30,7 +30,7 @@ class PostCreateViewModel @Inject constructor(
     }
 
     fun createPost(content: String, media: List<MediaUpload>) {
-        postUseCases.createPost(content, _state.value.postId, media).onEach { result ->
+        postUseCases.createPost(content, media).onEach { result ->
             _state.value = when (result) {
                 is Resource.Loading -> _state.value.copy(isLoading = true)
                 is Resource.Success -> _state.value.copy(

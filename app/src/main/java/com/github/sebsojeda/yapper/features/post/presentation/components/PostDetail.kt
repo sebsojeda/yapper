@@ -29,6 +29,7 @@ fun PostDetail(
     post: Post,
     onPostLikeClick: () -> Unit,
     onPostCommentClick: (String) -> Unit,
+    onPostReferenceClick: (String) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -60,6 +61,11 @@ fun PostDetail(
                 modifier = Modifier.padding(bottom = 2.dp),
             )
             MediaPreview(media = post.postMedia.map { it.media.path }, bucket = Constants.BUCKET_PUBLIC_MEDIA)
+            if (post.postReference != null) {
+                PostPreview(post = post.postReference, onPostClick = {
+                    onPostReferenceClick(post.postReference.id)
+                })
+            }
             Text(
                 text = parseTimestamp(post.createdAt),
                 color = Colors.Neutral400,
@@ -111,8 +117,10 @@ fun PostDetailPreview() {
                     media = Media(id = "1", path = "")
                 ),
             ),
+            postReference = null,
         ),
         onPostLikeClick = {},
         onPostCommentClick = {},
+        onPostReferenceClick = {},
     )
 }

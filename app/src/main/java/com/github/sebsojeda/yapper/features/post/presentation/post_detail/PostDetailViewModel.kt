@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.sebsojeda.yapper.core.Constants
 import com.github.sebsojeda.yapper.core.Resource
-import com.github.sebsojeda.yapper.core.domain.model.MediaUpload
+import com.github.sebsojeda.yapper.features.post.domain.model.Comment
 import com.github.sebsojeda.yapper.features.post.domain.model.Post
 import com.github.sebsojeda.yapper.features.post.domain.usecase.PostUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -61,7 +61,7 @@ class PostDetailViewModel @Inject constructor(
     }
 
     fun getComments(postId: String) {
-        postUseCases.getPostComments(postId).onEach { result ->
+        postUseCases.getComments(postId).onEach { result ->
             _state.value = when (result) {
                 is Resource.Loading -> _state.value.copy(isCommentsLoading = true)
                 is Resource.Success -> _state.value.copy(
@@ -76,8 +76,8 @@ class PostDetailViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun onPostCommentClick(media: List<MediaUpload> = emptyList()) {
-        postUseCases.createPost(content, _state.value.postId, media).onEach { result ->
+    fun onPostCommentClick() {
+        postUseCases.createComment(content, _state.value.postId).onEach { result ->
             when (result) {
                 is Resource.Loading -> {
                     // Do nothing
@@ -143,7 +143,7 @@ class PostDetailViewModel @Inject constructor(
         }
     }
 
-    fun onCommentLikeClick(comment: Post) {
+    fun onCommentLikeClick(comment: Comment) {
         if (comment.likedByUser) {
             postUseCases.unlikePost(comment.id).onEach { result ->
                 when (result) {

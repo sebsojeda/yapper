@@ -1,8 +1,10 @@
 package com.github.sebsojeda.yapper.features.post.data.datasource
 
 import com.github.sebsojeda.yapper.core.Constants
+import com.github.sebsojeda.yapper.features.post.data.dto.CreateCommentDto
 import com.github.sebsojeda.yapper.features.post.data.dto.CreateLikeDto
 import com.github.sebsojeda.yapper.features.post.data.dto.CreatePostDto
+import com.github.sebsojeda.yapper.features.post.data.dto.GetCommentDto
 import com.github.sebsojeda.yapper.features.post.data.dto.GetLikeDto
 import com.github.sebsojeda.yapper.features.post.data.dto.GetPostDto
 import io.github.jan.supabase.postgrest.Postgrest
@@ -15,30 +17,30 @@ import javax.inject.Inject
 class PostRemoteDataSource @Inject constructor(
     private val dataSource: Postgrest,
 ) {
-    suspend fun getPosts(orderColumn: String, orderDescending: Boolean, limit: Long?): List<GetPostDto> =
+    suspend fun getComments(orderColumn: String, orderDescending: Boolean, limit: Long?): List<GetPostDto> =
         withContext(Dispatchers.IO) {
             dataSource.from(Constants.TABLE_POSTS)
-                .select(Columns.raw("*, likes:likes(*), post_media:post_media(*, media:media(*)), user:user_id(*)")) {
+                .select(Columns.raw("*, likes:likes(*), post_media:post_media(*, media:media(*)), user:user_id(*), post_reference:post_id(*, user:user_id(*), post_media:post_media(*, media:media(*)))")) {
                     order(orderColumn, if (orderDescending) Order.DESCENDING else Order.ASCENDING)
                     if (limit != null) limit(limit)
                 }
                 .decodeList<GetPostDto>()
         }
 
-    suspend fun getPosts(postId: String): List<GetPostDto> =
+    suspend fun getComments(postId: String): List<GetCommentDto> =
         withContext(Dispatchers.IO) {
             dataSource.from(Constants.TABLE_POSTS)
                 .select(Columns.raw("*, likes:likes(*), post_media:post_media(*, media:media(*)), user:user_id(*)")) {
                     filter {
                         eq("post_id", postId)
                     }
-                }.decodeList<GetPostDto>()
+                }.decodeList<GetCommentDto>()
         }
 
     suspend fun getPost(postId: String): GetPostDto =
         withContext(Dispatchers.IO) {
             dataSource.from(Constants.TABLE_POSTS)
-                .select(Columns.raw("*, likes:likes(*), post_media:post_media(*, media:media(*)), user:user_id(*)")) {
+                .select(Columns.raw("*, likes:likes(*), post_media:post_media(*, media:media(*)), user:user_id(*), post_reference:post_id(*, user:user_id(*), post_media:post_media(*, media:media(*)))")) {
                     filter { eq("id", postId) }
                 }.decodeSingle<GetPostDto>()
         }
@@ -48,6 +50,13 @@ class PostRemoteDataSource @Inject constructor(
             dataSource.from(Constants.TABLE_POSTS)
                 .insert(post) { select(Columns.raw("*, likes:likes(*), post_media:post_media(*, media:media(*)), user:user_id(*)")) }
                 .decodeSingle<GetPostDto>()
+        }
+
+    suspend fun createComment(comment: CreateCommentDto): GetCommentDto =
+        withContext(Dispatchers.IO) {
+            dataSource.from(Constants.TABLE_POSTS)
+                .insert(comment) { select(Columns.raw("*, likes:likes(*), post_media:post_media(*, media:media(*)), user:user_id(*)")) }
+                .decodeSingle<GetCommentDto>()
         }
 
     suspend fun deletePost(postId: String): Unit =
@@ -77,7 +86,7 @@ class PostRemoteDataSource @Inject constructor(
     suspend fun searchPosts(query: String): List<GetPostDto> =
         withContext(Dispatchers.IO) {
             dataSource.from(Constants.TABLE_POSTS)
-                .select(Columns.raw("*, likes:likes(*), post_media:post_media(*, media:media(*)), user:user_id(*)")) {
+                .select(Columns.raw("*, likes:likes(*), post_media:post_media(*, media:media(*)), user:user_id(*), post_reference:post_id(*, user:user_id(*), post_media:post_media(*, media:media(*)))")) {
                     filter {
                         ilike("content", "%$query%")
                     }

@@ -42,8 +42,8 @@ import com.github.sebsojeda.yapper.core.Constants
 import com.github.sebsojeda.yapper.core.components.YapperLayout
 import com.github.sebsojeda.yapper.core.extensions.topBorder
 import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
+import com.github.sebsojeda.yapper.features.post.presentation.components.CommentListItem
 import com.github.sebsojeda.yapper.features.post.presentation.components.PostDetail
-import com.github.sebsojeda.yapper.features.post.presentation.components.PostListItem
 import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @Composable
@@ -107,6 +107,7 @@ fun PostDetailScreen(
                             post = post,
                             onPostLikeClick = { viewModel.onPostLikeClick(post) },
                             onPostCommentClick = { focusRequester.requestFocus() },
+                            onPostReferenceClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId") }
                         )
                     }
                 }
@@ -121,11 +122,11 @@ fun PostDetailScreen(
                     }
                 }
                 items(state.comments) { comment ->
-                    PostListItem(
-                        post = comment,
+                    CommentListItem(
+                        comment = comment,
                         onPostClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId") },
                         onPostLikeClick = { viewModel.onCommentLikeClick(comment) },
-                        onPostCommentClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId?${Constants.PARAM_FOCUS_REPLY}=true") }
+                        onPostCommentClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId?${Constants.PARAM_FOCUS_REPLY}=true") },
                     )
                 }
             }

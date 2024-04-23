@@ -3,9 +3,11 @@ package com.github.sebsojeda.yapper.features.post.data
 import com.github.sebsojeda.yapper.core.data.dto.MediaUploadDto
 import com.github.sebsojeda.yapper.core.domain.repository.MediaRepository
 import com.github.sebsojeda.yapper.core.domain.repository.MediaStorageRepository
+import com.github.sebsojeda.yapper.features.post.data.dto.CreateCommentDto
 import com.github.sebsojeda.yapper.features.post.data.dto.CreateLikeDto
 import com.github.sebsojeda.yapper.features.post.data.dto.CreatePostDto
 import com.github.sebsojeda.yapper.features.post.data.dto.CreatePostMediaDto
+import com.github.sebsojeda.yapper.features.post.data.dto.GetCommentDto
 import com.github.sebsojeda.yapper.features.post.data.dto.GetLikeDto
 import com.github.sebsojeda.yapper.features.post.data.dto.GetPostDto
 import com.github.sebsojeda.yapper.features.post.domain.repository.PostManager
@@ -24,7 +26,8 @@ class PostManagerImpl @Inject constructor(
     override suspend fun getPosts(orderColumn: String, orderDescending: Boolean, limit: Long?): List<GetPostDto> =
         postRepository.getPosts(orderColumn, orderDescending, limit)
 
-    override suspend fun getPosts(postId: String): List<GetPostDto> = postRepository.getPosts(postId)
+    override suspend fun getComments(postId: String): List<GetCommentDto> =
+        postRepository.getComments(postId)
 
     override suspend fun getPost(postId: String): GetPostDto = postRepository.getPost(postId)
 
@@ -47,6 +50,9 @@ class PostManagerImpl @Inject constructor(
 
         return newPost.copy(postMedia = newPostMedia)
     }
+
+    override suspend fun createComment(comment: CreateCommentDto): GetCommentDto =
+        postRepository.createComment(comment)
 
     override suspend fun deletePost(postId: String) {
         val post = postRepository.getPost(postId)

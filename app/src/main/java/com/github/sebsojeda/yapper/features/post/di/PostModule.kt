@@ -10,9 +10,10 @@ import com.github.sebsojeda.yapper.features.post.data.repository.PostRepositoryI
 import com.github.sebsojeda.yapper.features.post.domain.repository.PostManager
 import com.github.sebsojeda.yapper.features.post.domain.repository.PostMediaRepository
 import com.github.sebsojeda.yapper.features.post.domain.repository.PostRepository
+import com.github.sebsojeda.yapper.features.post.domain.usecase.CreateComment
 import com.github.sebsojeda.yapper.features.post.domain.usecase.CreatePost
+import com.github.sebsojeda.yapper.features.post.domain.usecase.GetComments
 import com.github.sebsojeda.yapper.features.post.domain.usecase.GetPost
-import com.github.sebsojeda.yapper.features.post.domain.usecase.GetPostComments
 import com.github.sebsojeda.yapper.features.post.domain.usecase.GetPosts
 import com.github.sebsojeda.yapper.features.post.domain.usecase.LikePost
 import com.github.sebsojeda.yapper.features.post.domain.usecase.PostUseCases
@@ -63,9 +64,10 @@ object PostModule {
     fun providesPostUseCases(postManager: PostManager): PostUseCases {
         return PostUseCases(
             createPost = CreatePost(postManager),
+            createComment = CreateComment(postManager),
             getPost = GetPost(postManager),
             getPosts = GetPosts(postManager),
-            getPostComments = GetPostComments(postManager),
+            getComments = GetComments(postManager),
             likePost = LikePost(postManager),
             unlikePost = UnlikePost(postManager),
             searchPosts = SearchPosts(postManager)
