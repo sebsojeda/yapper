@@ -26,7 +26,7 @@ fun MediaPicker(onSelectMedia: (List<Uri>) -> Unit, modifier: Modifier = Modifie
                 PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)
             )
         }) {
-            Icon(painter = painterResource(id = R.drawable.photo_outline), contentDescription = null, tint = Colors.Neutral950)
+            Icon(painter = painterResource(id = R.drawable.photo_outline), contentDescription = null, tint = Colors.Indigo500)
         }
     }
 

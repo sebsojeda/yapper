@@ -69,7 +69,7 @@ fun CommentListItem(
                 text = comment.content,
                 modifier = Modifier.padding(bottom = 2.dp),
             )
-            MediaPreview(media = comment.postMedia.map { it.media.path }, bucket = Constants.BUCKET_PUBLIC_MEDIA)
+            MediaGrid(media = comment.postMedia.map { it.media.path }, bucket = Constants.BUCKET_PUBLIC_MEDIA)
             Row(modifier = Modifier.padding(top = 2.dp)) {
                 Likes(likedByUser = comment.likedByUser, likes = comment.likes, onPostLikeClick = { onPostLikeClick() })
                 Comments(comments = comment.comments, onPostCommentClick = { onPostCommentClick(comment.id) })

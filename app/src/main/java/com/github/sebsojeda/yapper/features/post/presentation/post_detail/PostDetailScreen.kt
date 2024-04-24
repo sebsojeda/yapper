@@ -1,11 +1,15 @@
 package com.github.sebsojeda.yapper.features.post.presentation.post_detail
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -43,6 +47,8 @@ import com.github.sebsojeda.yapper.core.components.YapperLayout
 import com.github.sebsojeda.yapper.core.extensions.topBorder
 import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
 import com.github.sebsojeda.yapper.features.post.presentation.components.CommentListItem
+import com.github.sebsojeda.yapper.features.post.presentation.components.MediaPicker
+import com.github.sebsojeda.yapper.features.post.presentation.components.MediaRow
 import com.github.sebsojeda.yapper.features.post.presentation.components.PostDetail
 import com.github.sebsojeda.yapper.ui.theme.Colors
 
@@ -56,6 +62,7 @@ fun PostDetailScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
     var hasFocus by remember { mutableStateOf(false) }
+    var media by remember { mutableStateOf(emptyList<Uri>()) }
 
     LaunchedEffect(state.postId) {
         viewModel.getPost(state.postId)
@@ -138,37 +145,66 @@ fun PostDetailScreen(
                     .padding(8.dp),
             ) {
                 if (hasFocus) {
-                    Button(
-                        onClick = {
-                            viewModel.onPostCommentClick()
-                            localFocusManager.clearFocus()
-                            keyboardController?.hide()
-                        },
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .align(Alignment.End)
-                            .padding(bottom = 8.dp),
-                        enabled = viewModel.content.isNotBlank(),
-                        colors = ButtonDefaults.buttonColors(containerColor = Colors.Indigo500)
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
                     ) {
-                        Text("Reply")
+                        Text(text = "Replying to ", color = Colors.Neutral400)
+                        Text(text = "@${state.post?.user?.username}", color = Colors.Indigo500)
                     }
                 }
-                TextField(
-                    value = viewModel.content,
-                    onValueChange = { viewModel.onContentChange(it) },
-                    placeholder = { Text("Post your reply", color = Colors.Neutral400) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester)
-                        .onFocusChanged { hasFocus = it.isFocused },
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Colors.Neutral200,
-                        unfocusedIndicatorColor = Colors.Transparent,
-                        focusedContainerColor = Colors.Neutral200,
-                        focusedIndicatorColor = Colors.Transparent,
-                    ),
-                    shape = MaterialTheme.shapes.extraLarge
-                )
+                Column(
+                    modifier = Modifier.background(color = Colors.Neutral200, shape = MaterialTheme.shapes.extraLarge),
+                ) {
+                    TextField(
+                        value = viewModel.content,
+                        onValueChange = { viewModel.onContentChange(it) },
+                        placeholder = { Text("Post your reply", color = Colors.Neutral400) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester)
+                            .onFocusChanged { hasFocus = it.isFocused },
+                        colors = TextFieldDefaults.colors(
+                            unfocusedContainerColor = Colors.Transparent,
+                            unfocusedIndicatorColor = Colors.Transparent,
+                            focusedContainerColor = Colors.Transparent,
+                            focusedIndicatorColor = Colors.Transparent,
+                        ),
+                        shape = MaterialTheme.shapes.extraLarge
+                    )
+                    MediaRow(media = media, onRemoveMedia = { media = media - it }, height = 150.dp)
+                }
+                if (hasFocus) {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
+                            .imePadding(),
+                    ) {
+                        MediaPicker(
+                            modifier = Modifier,
+                            onSelectMedia = { media = it }
+                        )
+                        Button(
+                            onClick = {
+                                viewModel.onPostCommentClick()
+                                localFocusManager.clearFocus()
+                                keyboardController?.hide()
+                            },
+                            enabled = viewModel.content.isNotBlank(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Colors.Indigo500,
+                                disabledContainerColor = Colors.Indigo300,
+                                disabledContentColor = Colors.Indigo500,
+                            )
+                        ) {
+                            Text("Reply")
+                        }
+                    }
+                }
             }
         }
     }

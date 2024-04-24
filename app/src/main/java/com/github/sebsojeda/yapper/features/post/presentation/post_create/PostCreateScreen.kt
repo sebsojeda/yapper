@@ -4,10 +4,9 @@ import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -25,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,9 +33,8 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.github.sebsojeda.yapper.core.domain.model.MediaUpload
 import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
-import com.github.sebsojeda.yapper.features.post.presentation.components.MediaLayout
 import com.github.sebsojeda.yapper.features.post.presentation.components.MediaPicker
-import com.github.sebsojeda.yapper.features.post.presentation.components.MediaPreview
+import com.github.sebsojeda.yapper.features.post.presentation.components.MediaRow
 import com.github.sebsojeda.yapper.ui.theme.Colors
 import java.util.UUID
 
@@ -47,6 +46,7 @@ fun PostCreateScreen(
     val state = viewModel.state.collectAsState()
     val contentResolver = LocalContext.current.contentResolver
     val focusRequester = remember { FocusRequester() }
+    var hasFocus by remember { mutableStateOf(false) }
     var content by remember { mutableStateOf("") }
     var media by remember { mutableStateOf(emptyList<Uri>()) }
 
@@ -74,7 +74,7 @@ fun PostCreateScreen(
                 },
                 enabled = !state.value.isLoading,
                 modifier = Modifier.align(Alignment.CenterVertically)) {
-                Text("Cancel", color = Colors.Indigo500)
+                Text("Cancel", color = Colors.Neutral950)
             }
             Button(
                 onClick = {
@@ -96,7 +96,9 @@ fun PostCreateScreen(
                 modifier = Modifier
                     .align(Alignment.CenterVertically),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Colors.Indigo500
+                    containerColor = Colors.Indigo500,
+                    disabledContainerColor = Colors.Indigo300,
+                    disabledContentColor = Colors.Indigo500,
                 ),
                 enabled = content.isNotBlank() && !state.value.isLoading
             ) {
@@ -110,22 +112,28 @@ fun PostCreateScreen(
                 placeholder = { Text("What's happening?", color = Colors.Neutral400) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .focusRequester(focusRequester),
+                    .focusRequester(focusRequester)
+                    .onFocusChanged { hasFocus = it.isFocused }
+                    .weight(1f),
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Colors.Transparent,
                     focusedContainerColor = Colors.Transparent,
                     unfocusedIndicatorColor = Colors.Transparent,
                     focusedIndicatorColor = Colors.Transparent,
-                )
+                ),
             )
-            MediaPreview(media = media.map { it.toString() }, layout = MediaLayout.ROW)
-            Row {
-                MediaPicker(
-                    modifier = Modifier,
-                    onSelectMedia = { media = it }
-                )
-                Spacer(modifier = Modifier.width(8.dp))
+            MediaRow(media = media, onRemoveMedia = { media = media - it })
+            if (hasFocus) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().imePadding()
+                ) {
+                    MediaPicker(
+                        modifier = Modifier,
+                        onSelectMedia = { media = it }
+                    )
+//                Spacer(modifier = Modifier.width(8.dp))
 //                Camera(onImageCapture = { media = listOf(it) })
+                }
             }
         }
     }

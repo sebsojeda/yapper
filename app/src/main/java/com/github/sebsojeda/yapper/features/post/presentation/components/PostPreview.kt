@@ -29,47 +29,58 @@ fun PostPreview(
     post: PostReference,
     onPostClick: (String) -> Unit,
 ) {
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onPostClick(post.id) }
             .border(1.dp, Colors.Neutral200, RoundedCornerShape(8.dp))
-            .padding(8.dp)
     ) {
-        Avatar(path = post.user.avatar?.path, name = post.user.name, size = 24)
-        Spacer(modifier = Modifier.padding(4.dp))
-        Column {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+            Avatar(path = post.user.avatar?.path, name = post.user.name, size = 24)
+            Spacer(modifier = Modifier.padding(4.dp))
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        modifier = Modifier.padding(end = 2.dp),
+                        fontWeight = FontWeight.Bold,
+                        color = Colors.Neutral950,
+                        text = post.user.name,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        text = "@${post.user.username}",
+                        color = Colors.Neutral400,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        modifier = Modifier,
+                        text = " • " + TimeAgo.using(
+                            post.createdAt.toInstant().toEpochMilliseconds()
+                        ),
+                        color = Colors.Neutral400,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
                 Text(
-                    modifier = Modifier.padding(end = 2.dp),
-                    fontWeight = FontWeight.Bold,
-                    color = Colors.Neutral950,
-                    text = post.user.name,
-                    maxLines = 1,
+                    maxLines = 7,
                     overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    text = "@${post.user.username}",
-                    color = Colors.Neutral400,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    modifier = Modifier,
-                    text = " • " + TimeAgo.using(post.createdAt.toInstant().toEpochMilliseconds()),
-                    color = Colors.Neutral400,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    text = post.content,
+                    modifier = Modifier.padding(bottom = 2.dp),
                 )
             }
-            Text(
-                maxLines = 7,
-                overflow = TextOverflow.Ellipsis,
-                text = post.content,
-                modifier = Modifier.padding(bottom = 2.dp),
-            )
-            MediaPreview(media = post.postMedia.map { it.media.path }, bucket = Constants.BUCKET_PUBLIC_MEDIA)
         }
+        MediaGrid(
+            media = post.postMedia.map { it.media.path },
+            bucket = Constants.BUCKET_PUBLIC_MEDIA,
+            shape = RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp)
+        )
     }
 }
 

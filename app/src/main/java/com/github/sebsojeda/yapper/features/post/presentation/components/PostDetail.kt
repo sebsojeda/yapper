@@ -60,7 +60,7 @@ fun PostDetail(
                 text = post.content,
                 modifier = Modifier.padding(bottom = 2.dp),
             )
-            MediaPreview(media = post.postMedia.map { it.media.path }, bucket = Constants.BUCKET_PUBLIC_MEDIA)
+            MediaGrid(media = post.postMedia.map { it.media.path }, bucket = Constants.BUCKET_PUBLIC_MEDIA)
             if (post.postReference != null) {
                 PostPreview(post = post.postReference, onPostClick = {
                     onPostReferenceClick(post.postReference.id)

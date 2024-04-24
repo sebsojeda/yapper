@@ -1,6 +1,7 @@
 package com.github.sebsojeda.yapper.features.chat.presentation.chat_detail
 
 import Avatar
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,28 +16,36 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -46,21 +55,26 @@ import com.github.sebsojeda.yapper.core.extensions.topBorder
 import com.github.sebsojeda.yapper.features.chat.presentation.ChatRoutes
 import com.github.sebsojeda.yapper.features.chat.presentation.components.ChatBubble
 import com.github.sebsojeda.yapper.ui.theme.Colors
+import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatDetailScreen(
     navController: NavController,
     viewModel: ChatDetailViewModel = hiltViewModel(),
 ) {
     val state = viewModel.state.collectAsState().value
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember { mutableStateOf(false) }
     val localFocusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
+    val scope = rememberCoroutineScope()
     var hasFocus by remember { mutableStateOf(false) }
-    val participant = state.conversation?.participants?.get(0)?.user
     val columnState = rememberLazyListState()
+    var newConversationName by remember { mutableStateOf(state.conversation?.name) }
 
     LaunchedEffect(state.messages.size){
         columnState.animateScrollToItem(columnState.layoutInfo.totalItemsCount)
@@ -69,14 +83,19 @@ fun ChatDetailScreen(
     YapperLayout(
         navController = navController,
         title = {
-            participant?.let {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable {
+                    showBottomSheet = true
+                }
+            ) {
+                if (state.conversation != null) {
                     Avatar(
-                        path = it.avatar?.path,
-                        name = it.name,
+                        path = state.conversation.media?.path,
+                        name = state.conversation.name,
                         size = 32)
                     Text(
-                        text = it.name,
+                        text = state.conversation.name,
                         modifier = Modifier.padding(top = 8.dp),
                         fontSize = MaterialTheme.typography.bodySmall.fontSize,
                         fontWeight = FontWeight.Bold,
@@ -122,16 +141,14 @@ fun ChatDetailScreen(
                     }
             ) {
                 items(state.messages) { message ->
-                    val align = if (message.user.id == participant?.id) {
-                        Alignment.Start
+                    val align: Alignment.Horizontal?
+                    val color: Color?
+                    if (state.conversation?.participants?.any { it.userId == message.user.id } == true) {
+                        align = Alignment.Start
+                        color = Colors.Neutral400
                     } else {
-                        Alignment.End
-                    }
-                    val color = if (message.user.id == participant?.id) {
-                        Colors.Neutral400
-                    } else {
-                        // light blue
-                        Colors.Indigo500
+                        align = Alignment.End
+                        color = Colors.Indigo500
                     }
                     val messageDay = parseDay(message.createdAt)
                     val previousMessageIndex = state.messages.indexOf(message) - 1
@@ -201,6 +218,69 @@ fun ChatDetailScreen(
                     ),
                     shape = MaterialTheme.shapes.extraLarge
                 )
+            }
+        }
+
+        if (showBottomSheet && state.conversation != null) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showBottomSheet = false
+                },
+                sheetState = sheetState
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        "Conversation Details",
+                        color = Colors.Neutral950,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    Avatar(
+                        path = state.conversation.media?.path,
+                        name = state.conversation.name,
+                        size = 64)
+                    Box {
+                        TextField(
+                            value = newConversationName ?: state.conversation.name,
+                            onValueChange = { newConversationName = it },
+                            modifier = Modifier
+                                .align(Alignment.Center),
+                            colors = TextFieldDefaults.colors(
+                                unfocusedContainerColor = Colors.Transparent,
+                                focusedContainerColor = Colors.Transparent,
+                                unfocusedIndicatorColor = Colors.Transparent,
+                                focusedIndicatorColor = Colors.Transparent,
+                                disabledContainerColor = Colors.Transparent,
+                                disabledIndicatorColor = Colors.Transparent,
+                            ),
+                            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
+                        )
+                    }
+                }
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 32.dp)
+                ) {
+                    TextButton(onClick = {
+                        newConversationName = state.conversation.name
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                showBottomSheet = false
+                            }
+                        }
+                    }) {
+                        Text("Cancel", color = Colors.Neutral950)
+                    }
+                    TextButton(onClick = {
+
+                    }) {
+                        Text("Save", color = Colors.Indigo500)
+                    }
+                }
             }
         }
     }

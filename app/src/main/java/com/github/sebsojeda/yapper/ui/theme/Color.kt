@@ -12,6 +12,7 @@ object Colors {
     val Transparent = Color(0x00000000)
 
     // Indigo
+    val Indigo300 = Color(0xFFA5B4FC)
     val Indigo500 = Color(0xFF6366F1)
 
     // Red

@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -24,6 +25,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,6 +36,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.github.sebsojeda.yapper.features.chat.presentation.ChatRoutes
+import com.github.sebsojeda.yapper.features.chat.presentation.components.TextChip
 import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @Composable
@@ -40,7 +46,8 @@ fun ChatCreateScreen(
 ) {
     val state = viewModel.state.collectAsState()
     val focusRequester = remember { FocusRequester() }
-    var participants by remember { mutableStateOf("") }
+    var participant by remember { mutableStateOf("") }
+    val participants = remember { mutableStateListOf<String>() }
     var content by remember { mutableStateOf("") }
 
     if (state.value.isChatCreated) {
@@ -64,38 +71,69 @@ fun ChatCreateScreen(
                 },
                 enabled = !state.value.isLoading,
                 modifier = Modifier.align(Alignment.CenterVertically)) {
-                Text("Cancel", color = Colors.Indigo500)
+                Text("Cancel", color = Colors.Neutral950)
             }
             Button(
                 onClick = {
-                    val usernames = participants.split(",")
-                        .map {
-                            it.trim().removePrefix("@")
-                        }
-                    viewModel.createChat(usernames, content)
+                    viewModel.createChat(participants, content)
                 },
                 modifier = Modifier
                     .align(Alignment.CenterVertically),
-                colors = ButtonDefaults.buttonColors(containerColor = Colors.Indigo500),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Colors.Indigo500,
+                    disabledContainerColor = Colors.Indigo300,
+                    disabledContentColor = Colors.Indigo500,
+                ),
                 enabled = content.isNotBlank() && !state.value.isLoading && participants.isNotEmpty()
             ) {
                 Text("Send")
             }
         }
-        TextField(
-            value = participants,
-            onValueChange = { participants = it },
-            prefix = { Text("To: ", color = Colors.Neutral400) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(focusRequester),
-            colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Colors.Transparent,
-                focusedContainerColor = Colors.Transparent,
-                unfocusedIndicatorColor = Colors.Transparent,
-                focusedIndicatorColor = Colors.Transparent,
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("To: ", color = Colors.Neutral400, modifier = Modifier.padding(start = 16.dp))
+            participants.forEach { participant ->
+                TextChip(participant, modifier = Modifier.padding(end = 4.dp)) {
+                    participants.remove(participant)
+                }
+            }
+            TextField(
+                value = participant,
+                onValueChange = {
+                    participant = if (it.endsWith(" ")) {
+                        participants.add(it.trim().removePrefix("@"))
+                        ""
+                    } else {
+                        it
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester)
+                    .onFocusChanged {
+                        if (!it.isFocused && participant.isNotBlank()) {
+                            participants.add(participant.trim().removePrefix("@"))
+                            participant = ""
+                        }
+                    }
+                    .onKeyEvent {
+                        if (it.key == Key.Backspace && participant.isEmpty() && participants.isNotEmpty()) {
+                            participants.removeAt(participants.size - 1)
+                            true
+                        } else {
+                            false
+                        }
+                    },
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = Colors.Transparent,
+                    focusedContainerColor = Colors.Transparent,
+                    unfocusedIndicatorColor = Colors.Transparent,
+                    focusedIndicatorColor = Colors.Transparent,
+                ),
             )
-        )
+        }
+
         Column {
             TextField(
                 value = content,

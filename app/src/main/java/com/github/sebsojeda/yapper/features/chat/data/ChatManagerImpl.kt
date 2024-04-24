@@ -47,7 +47,8 @@ class ChatManagerImpl @Inject constructor(
             throw IllegalArgumentException("No participants provided")
         }
 
-        val conversation = conversationRepository.createConversation(CreateConversationDto(null, null))
+        val conversationName = users.joinToString(", ") { it.name }
+        val conversation = conversationRepository.createConversation(CreateConversationDto(conversationName, null))
         participantRepository.createParticipant(CreateParticipantDto(conversation.id, auth.currentUserOrNull()!!.id))
         users.forEach { user ->
             participantRepository.createParticipant(CreateParticipantDto(conversation.id, user.id))

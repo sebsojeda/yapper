@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GetConversationDto(
     @SerialName("id") val id: String,
-    @SerialName("name") val name: String?,
+    @SerialName("name") val name: String,
     @SerialName("media_id") val mediaId: String?,
     @SerialName("media") val media: GetMediaDto?,
     @SerialName("messages") val messages: List<GetMessageDto>?,
