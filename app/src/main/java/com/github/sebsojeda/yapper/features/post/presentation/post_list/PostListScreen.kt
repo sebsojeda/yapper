@@ -82,7 +82,10 @@ fun PostListScreen(
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
             if (!state.value.isLoading && state.value.posts.isEmpty()) {
-                Text(text = "No posts...yet", modifier = Modifier.align(Alignment.Center))
+                Text(text = "No posts...yet",
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Colors.Neutral400
+                )
             }
         }
     }

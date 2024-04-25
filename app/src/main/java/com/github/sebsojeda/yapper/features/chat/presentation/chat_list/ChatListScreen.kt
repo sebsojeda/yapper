@@ -72,7 +72,10 @@ fun ChatListScreen(
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
             if (!state.value.isLoading && state.value.conversations.isEmpty()) {
-                Text(text = "No conversations...yet", modifier = Modifier.align(Alignment.Center))
+                Text(text = "No conversations...yet",
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Colors.Neutral400
+                )
             }
         }
     }
