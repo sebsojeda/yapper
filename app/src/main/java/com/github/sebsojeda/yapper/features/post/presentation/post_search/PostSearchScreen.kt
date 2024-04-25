@@ -1,18 +1,24 @@
 package com.github.sebsojeda.yapper.features.post.presentation.post_search
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -22,9 +28,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -36,6 +44,7 @@ import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
 import com.github.sebsojeda.yapper.features.post.presentation.components.CommentListItem
 import com.github.sebsojeda.yapper.ui.theme.Colors
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostSearchScreen(
     navController: NavController,
@@ -44,45 +53,63 @@ fun PostSearchScreen(
     val state = viewModel.state.collectAsState()
     var search by remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val interactionSource = remember { MutableInteractionSource() }
 
     YapperLayout (
         navController = navController,
         title = {
-            TextField(
-                value = search,
-                onValueChange = {
-                    search = it
-                    viewModel.searchPosts(it)
-                },
-                placeholder = { Text(text = "Search", color = Colors.Neutral400) },
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Colors.Neutral200,
-                    unfocusedIndicatorColor = Colors.Transparent,
-                    focusedContainerColor = Colors.Neutral200,
-                    focusedIndicatorColor = Colors.Transparent,
-                ),
-                shape = MaterialTheme.shapes.extraLarge,
-                singleLine = true,
+            Row(
                 modifier = Modifier
-                    .padding(0.dp),
-                textStyle = MaterialTheme.typography.bodyMedium,
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.magnifying_glass_outline),
-                        contentDescription = null,
-                        tint = Colors.Neutral400
+                    .clip(RoundedCornerShape(32.dp))
+                    .background(Colors.Neutral200)
+            ) {
+                BasicTextField(
+                    value = search,
+                    onValueChange = {
+                        search = it
+                        viewModel.searchPosts(it)
+                    },
+                    singleLine = true,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(32.dp))
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .width(240.dp),
+                    decorationBox = @Composable { innerTextField ->
+                        TextFieldDefaults.DecorationBox(
+                            value = search,
+                            innerTextField = innerTextField,
+                            enabled = true,
+                            singleLine = false,
+                            visualTransformation = VisualTransformation.None,
+                            interactionSource = interactionSource,
+                            placeholder = { Text(text = "Search", color = Colors.Neutral400) },
+                            contentPadding = PaddingValues(),
+                            colors = TextFieldDefaults.colors(
+                                unfocusedContainerColor = Colors.Transparent,
+                                unfocusedIndicatorColor = Colors.Transparent,
+                                focusedContainerColor = Colors.Transparent,
+                                focusedIndicatorColor = Colors.Transparent,
+                            ),
+                            prefix = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.magnifying_glass_outline),
+                                    contentDescription = null,
+                                    tint = Colors.Neutral400,
+                                )
+                            }
+                        )
+                    },
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            viewModel.searchPosts(search)
+                            keyboardController?.hide()
+                        }
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Search
                     )
-                },
-                keyboardActions = KeyboardActions(
-                    onSearch = {
-                        viewModel.searchPosts(search)
-                        keyboardController?.hide()
-                    }
-                ),
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Search
                 )
-            )
+            }
         },
         modifier = Modifier
     ) { innerPadding ->
@@ -94,7 +121,9 @@ fun PostSearchScreen(
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 item {
                     if (search.isEmpty()) {
-                        Text(text = "Popular", modifier = Modifier.padding(16.dp).bottomBorder(2.dp, Colors.Indigo500))
+                        Text(text = "Popular", modifier = Modifier
+                            .padding(16.dp)
+                            .bottomBorder(2.dp, Colors.Indigo500))
                     } else {
                         Text(text = "Search results for \"$search\"", color = Colors.Neutral400, modifier = Modifier.padding(16.dp))
                     }
@@ -103,7 +132,7 @@ fun PostSearchScreen(
                     CommentListItem(
                         post = post,
                         onPostClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId") },
-                        onPostLikeClick = { viewModel.onPostLikeClick(post) },
+                        onPostLikeClick = { viewModel.onToggleLike(post) },
                         onPostCommentClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId?${Constants.PARAM_FOCUS_REPLY}=true") },
                         onPostReferenceClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId") }
                     )

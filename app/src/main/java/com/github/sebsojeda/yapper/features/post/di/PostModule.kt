@@ -15,10 +15,9 @@ import com.github.sebsojeda.yapper.features.post.domain.usecase.CreatePost
 import com.github.sebsojeda.yapper.features.post.domain.usecase.GetComments
 import com.github.sebsojeda.yapper.features.post.domain.usecase.GetPost
 import com.github.sebsojeda.yapper.features.post.domain.usecase.GetPosts
-import com.github.sebsojeda.yapper.features.post.domain.usecase.LikePost
 import com.github.sebsojeda.yapper.features.post.domain.usecase.PostUseCases
 import com.github.sebsojeda.yapper.features.post.domain.usecase.SearchPosts
-import com.github.sebsojeda.yapper.features.post.domain.usecase.UnlikePost
+import com.github.sebsojeda.yapper.features.post.domain.usecase.ToggleLike
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -68,8 +67,7 @@ object PostModule {
             getPost = GetPost(postManager),
             getPosts = GetPosts(postManager),
             getComments = GetComments(postManager),
-            likePost = LikePost(postManager),
-            unlikePost = UnlikePost(postManager),
+            toggleLike = ToggleLike(postManager),
             searchPosts = SearchPosts(postManager)
         )
     }

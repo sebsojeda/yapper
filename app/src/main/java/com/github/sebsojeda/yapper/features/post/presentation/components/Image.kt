@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
 import com.github.sebsojeda.yapper.core.Constants
+import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @Composable
 fun Image(uri: String, modifier: Modifier = Modifier, bucket: String? = null) {
@@ -21,7 +22,7 @@ fun Image(uri: String, modifier: Modifier = Modifier, bucket: String? = null) {
         contentDescription = null,
         contentScale = ContentScale.Crop,
         modifier = modifier,
-        placeholder = ColorPainter(Color.LightGray),
+        placeholder = ColorPainter(Colors.Neutral200),
         onError = { error ->
             Log.e("Image", "Error loading image: $error")
         },

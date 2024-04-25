@@ -14,15 +14,12 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.github.sebsojeda.yapper.core.extensions.topBorder
-import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @Composable
 fun ChatListItem(img: String?, name: String?, preview: String?, onChatClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .topBorder(1.dp, Colors.Neutral200)
             .padding(16.dp)
             .clickable { onChatClick() }
     ) {

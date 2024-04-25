@@ -3,24 +3,29 @@ package com.github.sebsojeda.yapper.features.post.presentation.post_detail
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,15 +40,18 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.github.sebsojeda.yapper.R
 import com.github.sebsojeda.yapper.core.Constants
 import com.github.sebsojeda.yapper.core.components.YapperLayout
+import com.github.sebsojeda.yapper.core.domain.model.MediaUpload
 import com.github.sebsojeda.yapper.core.extensions.topBorder
 import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
 import com.github.sebsojeda.yapper.features.post.presentation.components.CommentListItem
@@ -51,7 +59,9 @@ import com.github.sebsojeda.yapper.features.post.presentation.components.MediaPi
 import com.github.sebsojeda.yapper.features.post.presentation.components.MediaRow
 import com.github.sebsojeda.yapper.features.post.presentation.components.PostDetail
 import com.github.sebsojeda.yapper.ui.theme.Colors
+import java.util.UUID
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostDetailScreen(
     navController: NavController,
@@ -63,11 +73,9 @@ fun PostDetailScreen(
     val focusRequester = remember { FocusRequester() }
     var hasFocus by remember { mutableStateOf(false) }
     var media by remember { mutableStateOf(emptyList<Uri>()) }
-
-    LaunchedEffect(state.postId) {
-        viewModel.getPost(state.postId)
-        viewModel.getComments(state.postId)
-    }
+    var content by remember { mutableStateOf("") }
+    val contentResolver = LocalContext.current.contentResolver
+    val interactionSource = remember { MutableInteractionSource() }
 
     YapperLayout(
         navController = navController,
@@ -86,10 +94,7 @@ fun PostDetailScreen(
         }
     ) { innerPadding ->
         Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .background(color = MaterialTheme.colorScheme.background)
+            modifier = Modifier.padding(innerPadding)
         ) {
             if (state.isPostLoading) {
                 Box(
@@ -112,13 +117,13 @@ fun PostDetailScreen(
                     state.post?.let { post ->
                         PostDetail(
                             post = post,
-                            onPostLikeClick = { viewModel.onPostLikeClick(post) },
+                            onPostLikeClick = { viewModel.onToggleLike(post) },
                             onPostCommentClick = { focusRequester.requestFocus() },
                             onPostReferenceClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId") }
                         )
                     }
                 }
-                if (state.isCommentsLoading) {
+                if (state.areCommentsLoading) {
                     item {
                         Box(
                             modifier = Modifier.fillMaxWidth(),
@@ -132,7 +137,7 @@ fun PostDetailScreen(
                     CommentListItem(
                         comment = comment,
                         onPostClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId") },
-                        onPostLikeClick = { viewModel.onCommentLikeClick(comment) },
+                        onPostLikeClick = { viewModel.onToggleCommentLike(comment) },
                         onPostCommentClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId?${Constants.PARAM_FOCUS_REPLY}=true") },
                     )
                 }
@@ -140,6 +145,8 @@ fun PostDetailScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .consumeWindowInsets(PaddingValues(bottom = innerPadding.calculateBottomPadding()))
+                    .imePadding()
                     .background(color = MaterialTheme.colorScheme.background)
                     .topBorder(1.dp, Colors.Neutral200)
                     .padding(8.dp),
@@ -158,21 +165,32 @@ fun PostDetailScreen(
                 Column(
                     modifier = Modifier.background(color = Colors.Neutral200, shape = MaterialTheme.shapes.extraLarge),
                 ) {
-                    TextField(
-                        value = viewModel.content,
-                        onValueChange = { viewModel.onContentChange(it) },
-                        placeholder = { Text("Post your reply", color = Colors.Neutral400) },
+                    BasicTextField(
+                        value = content,
+                        onValueChange = { content = it },
                         modifier = Modifier
                             .fillMaxWidth()
                             .focusRequester(focusRequester)
                             .onFocusChanged { hasFocus = it.isFocused },
-                        colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = Colors.Transparent,
-                            unfocusedIndicatorColor = Colors.Transparent,
-                            focusedContainerColor = Colors.Transparent,
-                            focusedIndicatorColor = Colors.Transparent,
-                        ),
-                        shape = MaterialTheme.shapes.extraLarge
+                        decorationBox = @Composable { innerTextField ->
+                            TextFieldDefaults.DecorationBox(
+                                value = content,
+                                innerTextField = innerTextField,
+                                enabled = true,
+                                singleLine = false,
+                                visualTransformation = VisualTransformation.None,
+                                interactionSource = interactionSource,
+                                placeholder =  { Text(text = "Post your reply", color = Colors.Neutral400) },
+                                contentPadding = PaddingValues(vertical = 8.dp , horizontal = 16.dp),
+                                colors = TextFieldDefaults.colors(
+                                    unfocusedContainerColor = Colors.Transparent,
+                                    unfocusedIndicatorColor = Colors.Transparent,
+                                    focusedContainerColor = Colors.Transparent,
+                                    focusedIndicatorColor = Colors.Transparent,
+                                ),
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                        }
                     )
                     MediaRow(media = media, onRemoveMedia = { media = media - it }, height = 150.dp)
                 }
@@ -181,25 +199,39 @@ fun PostDetailScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp)
-                            .imePadding(),
                     ) {
                         MediaPicker(
                             modifier = Modifier,
                             onSelectMedia = { media = it }
                         )
-                        Button(
+                        TextButton(
                             onClick = {
-                                viewModel.onPostCommentClick()
+                                val uploads = mutableListOf<MediaUpload>()
+                                media.forEach { uri ->
+                                    contentResolver.openInputStream(uri)?.buffered()?.let {
+                                        val filePath = UUID.randomUUID().toString()
+                                        val data = it.readBytes()
+                                        val upload = MediaUpload(
+                                            data = data,
+                                            filePath = filePath,
+                                            fileSize = data.size
+                                        )
+                                        uploads.add(upload)
+                                    }
+                                }
+                                viewModel.onPostCommentClick(content, uploads)
+                                content = ""
+                                media = emptyList()
                                 localFocusManager.clearFocus()
                                 keyboardController?.hide()
                             },
-                            enabled = viewModel.content.isNotBlank(),
+                            enabled = content.isNotBlank(),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Colors.Indigo500,
                                 disabledContainerColor = Colors.Indigo300,
                                 disabledContentColor = Colors.Indigo500,
-                            )
+                                contentColor = Colors.White
+                            ),
                         ) {
                             Text("Reply")
                         }

@@ -1,24 +1,30 @@
 package com.github.sebsojeda.yapper.features.chat.presentation.chat_detail
 
 import Avatar
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -37,6 +43,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -45,6 +52,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -75,6 +83,7 @@ fun ChatDetailScreen(
     var hasFocus by remember { mutableStateOf(false) }
     val columnState = rememberLazyListState()
     var newConversationName by remember { mutableStateOf(state.conversation?.name) }
+    val interactionSource = remember { MutableInteractionSource() }
 
     LaunchedEffect(state.messages.size){
         columnState.animateScrollToItem(columnState.layoutInfo.totalItemsCount)
@@ -162,7 +171,6 @@ fun ChatDetailScreen(
                             horizontalArrangement = Arrangement.Center,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .topBorder(1.dp, Colors.Neutral200)
                                 .padding(8.dp)
                         ) {
                             Text(
@@ -182,42 +190,71 @@ fun ChatDetailScreen(
                     )
                 }
             }
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .consumeWindowInsets(PaddingValues(innerPadding.calculateBottomPadding()))
+                    .imePadding()
                     .topBorder(1.dp, Colors.Neutral200)
                     .padding(8.dp),
             ) {
-                if (hasFocus) {
-                    Button(
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(32.dp))
+                        .background(Colors.Neutral200)
+                ) {
+                    BasicTextField(
+                        value = viewModel.content,
+                        onValueChange = { viewModel.onContentChange(it) },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                            .focusRequester(focusRequester)
+                            .onFocusChanged { hasFocus = it.isFocused },
+                        decorationBox = @Composable { innerTextField ->
+                            TextFieldDefaults.DecorationBox(
+                                value = viewModel.content,
+                                innerTextField = innerTextField,
+                                enabled = true,
+                                singleLine = false,
+                                visualTransformation = VisualTransformation.None,
+                                interactionSource = interactionSource,
+                                placeholder = {
+                                    Text(
+                                        text = "Start a message",
+                                        color = Colors.Neutral400
+                                    )
+                                },
+                                contentPadding = PaddingValues(),
+                                colors = TextFieldDefaults.colors(
+                                    unfocusedContainerColor = Colors.Transparent,
+                                    unfocusedIndicatorColor = Colors.Transparent,
+                                    focusedContainerColor = Colors.Transparent,
+                                    focusedIndicatorColor = Colors.Transparent,
+                                )
+                            )
+                        }
+                    )
+                    IconButton(
                         onClick = {
                             viewModel.onSendMessageClick()
                         },
-                        modifier = Modifier
-                            .align(Alignment.End)
-                            .padding(bottom = 8.dp),
+                        modifier = Modifier,
                         enabled = viewModel.content.isNotBlank(),
-                        colors = ButtonDefaults.buttonColors(containerColor = Colors.Indigo500)
+                        colors = IconButtonDefaults.iconButtonColors(
+                            containerColor = Colors.Indigo500,
+                            contentColor = Colors.White,
+                            disabledContainerColor = Colors.Indigo300,
+                            disabledContentColor = Colors.Indigo500
+                        )
                     ) {
-                        Text("Send")
+                        Icon(
+                            painter = painterResource(id = R.drawable.paper_airplane_mini),
+                            contentDescription = null,
+                        )
                     }
                 }
-                TextField(
-                    value = viewModel.content,
-                    onValueChange = { viewModel.onContentChange(it) },
-                    placeholder = { Text("Start a message", color = Colors.Neutral400) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester)
-                        .onFocusChanged { hasFocus = it.isFocused },
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Colors.Neutral200,
-                        unfocusedIndicatorColor = Colors.Transparent,
-                        focusedContainerColor = Colors.Neutral200,
-                        focusedIndicatorColor = Colors.Transparent,
-                    ),
-                    shape = MaterialTheme.shapes.extraLarge
-                )
             }
         }
 

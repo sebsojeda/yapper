@@ -3,13 +3,13 @@ package com.github.sebsojeda.yapper.core.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,12 +24,15 @@ import com.github.sebsojeda.yapper.ui.theme.Colors
 @Composable
 fun BottomNav(
     navController: NavController,
+    modifier: Modifier = Modifier
 ) {
     val currentRoute = navController.currentBackStackEntry?.destination?.route
     Row(
-        modifier = Modifier.fillMaxWidth()
-            .topBorder(1.dp, Colors.Neutral200),
-        horizontalArrangement = Arrangement.SpaceEvenly
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp)
+            .topBorder(1.dp, Colors.Neutral200)
     ) {
         BottomNavItem(
             onClick = {
@@ -38,20 +41,15 @@ fun BottomNav(
                     restoreState = true
                 }
             },
-            icon = {
+            icon = { isSelected ->
                 Icon(
-                    painter = painterResource(id = if (currentRoute == PostRoutes.PostList.route) R.drawable.home_solid else R.drawable.home_outline),
+                    painter = painterResource(id = if (isSelected) R.drawable.home_solid else R.drawable.home_outline),
                     contentDescription = null,
                     tint = Colors.Indigo500
                 )
             },
-            modifier = Modifier.weight(1f).run {
-                if (currentRoute == PostRoutes.PostList.route) {
-                    this.topBorder(2.dp, Colors.Indigo500)
-                } else {
-                    this
-                }
-            },
+            isSelected = currentRoute == PostRoutes.PostList.route,
+            modifier = Modifier.weight(1f)
         )
         BottomNavItem(
             onClick = {
@@ -60,37 +58,27 @@ fun BottomNav(
                     restoreState = true
                 }
             },
-            icon = {
+            icon = { isSelected ->
                 Icon(
-                    painter = painterResource(id = R.drawable.magnifying_glass_outline),
+                    painter = painterResource(id = if (isSelected) R.drawable.magnifying_glass_outline else R.drawable.magnifying_glass_outline),
                     contentDescription = null,
                     tint = Colors.Indigo500
                 )
             },
-            modifier = Modifier.weight(1f).run {
-                if (currentRoute == PostRoutes.PostSearch.route) {
-                    this.topBorder(2.dp, Colors.Indigo500)
-                } else {
-                    this
-                }
-            }
+            isSelected = currentRoute == PostRoutes.PostSearch.route,
+            modifier = Modifier.weight(1f)
         )
         BottomNavItem(
             onClick = {},
-            icon = {
+            icon = { isSelected ->
                 Icon(
-                    painter = painterResource(id = if (currentRoute == PostRoutes.PostCreate.route) R.drawable.bell_solid else R.drawable.bell_outline),
+                    painter = painterResource(id = if (isSelected) R.drawable.bell_solid else R.drawable.bell_outline),
                     contentDescription = null,
                     tint = Colors.Indigo500
                 )
             },
-            modifier = Modifier.weight(1f).run {
-                if (currentRoute == PostRoutes.PostCreate.route) {
-                    this.topBorder(2.dp, Colors.Indigo500)
-                } else {
-                    this
-                }
-            }
+            isSelected = currentRoute == PostRoutes.PostCreate.route,
+            modifier = Modifier.weight(1f)
         )
         BottomNavItem(
             onClick = {
@@ -99,40 +87,41 @@ fun BottomNav(
                     restoreState = true
                 }
             },
-            icon = {
+            icon = { isSelected ->
                 Icon(
-                    painter = painterResource(id = if (currentRoute == ChatRoutes.ChatList.route) R.drawable.envelope_solid else R.drawable.envelope_outline),
+                    painter = painterResource(id = if (isSelected) R.drawable.envelope_solid else R.drawable.envelope_outline),
                     contentDescription = null,
-                    tint = Colors.Indigo500,
+                    tint = Colors.Indigo500
                 )
             },
-            modifier = Modifier.weight(1f).run {
-                if (currentRoute == ChatRoutes.ChatList.route) {
-                    this.topBorder(2.dp, Colors.Indigo500)
-                } else {
-                    this
-                }
-            }
+            isSelected = currentRoute == ChatRoutes.ChatList.route,
+            modifier = Modifier.weight(1f)
         )
     }
 }
 
 @Composable
 fun BottomNavItem(
-    icon: @Composable () -> Unit,
+    icon: @Composable (Boolean) -> Unit,
+    isSelected: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-    Button(
+    IconButton(
         onClick = onClick,
-        modifier = modifier,
-        shape = RectangleShape,
-        colors = ButtonDefaults.buttonColors(
+        modifier = modifier.run {
+            if (isSelected) {
+                this.topBorder(2.dp, Colors.Indigo500)
+            } else {
+                this
+            }
+        },
+        colors = IconButtonDefaults.iconButtonColors(
             containerColor = Colors.Transparent,
-            contentColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.primary
         )
     ) {
-        icon()
+        icon(isSelected)
     }
 }
 

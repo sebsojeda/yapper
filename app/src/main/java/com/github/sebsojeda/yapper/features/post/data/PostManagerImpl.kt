@@ -51,8 +51,25 @@ class PostManagerImpl @Inject constructor(
         return newPost.copy(postMedia = newPostMedia)
     }
 
-    override suspend fun createComment(comment: CreateCommentDto): GetCommentDto =
-        postRepository.createComment(comment)
+    override suspend fun createComment(comment: CreateCommentDto, media: List<MediaUploadDto>): GetCommentDto {
+        // Create comment
+        val newComment = postRepository.createComment(comment)
+
+        // Upload media
+        media.forEach {
+            mediaStorageRepository.uploadMedia(it.media.filePath, it.data)
+        }
+
+        // Create media
+        val newMedia = mediaRepository.createMedia(media.map { it.media })
+
+        // Create post media
+        val newPostMedia = postMediaRepository.createPostMedia(newMedia.map {
+            CreatePostMediaDto(postId = newComment.id, mediaId = it.id)
+        })
+
+        return newComment.copy(postMedia = newPostMedia)
+    }
 
     override suspend fun deletePost(postId: String) {
         val post = postRepository.getPost(postId)

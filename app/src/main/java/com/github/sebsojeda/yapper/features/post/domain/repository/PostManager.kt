@@ -17,7 +17,7 @@ interface PostManager {
 
     suspend fun createPost(post: CreatePostDto, media: List<MediaUploadDto>): GetPostDto
 
-    suspend fun createComment(comment: CreateCommentDto): GetCommentDto
+    suspend fun createComment(comment: CreateCommentDto, media: List<MediaUploadDto>): GetCommentDto
 
     suspend fun deletePost(postId: String)
 

@@ -20,7 +20,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -48,10 +47,6 @@ fun YapperLayout(
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     val user = viewModel.currentUser.collectAsState().value
 
-    LaunchedEffect(Unit) {
-        viewModel.currentUser()
-    }
-
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -73,7 +68,7 @@ fun YapperLayout(
                     )
                     TextButton(
                         onClick = { viewModel.signOut() },
-                        contentPadding = PaddingValues(0.dp),
+                        contentPadding = PaddingValues(),
                         colors = ButtonDefaults.textButtonColors(contentColor = Colors.Indigo500)
                     ) {
                         Text(text = "Sign Out")
@@ -87,9 +82,8 @@ fun YapperLayout(
             topBar = {
                 CenterAlignedTopAppBar(
                     title = title,
-                    modifier = Modifier.padding(start = 8.dp),
                     navigationIcon = navigationIcon ?: {
-                        Box(modifier = Modifier.clickable(onClick = {
+                        Box(modifier = Modifier.padding(start = 8.dp).clickable(onClick = {
                             scope.launch {
                                 drawerState.apply {
                                     if (isClosed) open() else close()
@@ -103,7 +97,7 @@ fun YapperLayout(
                     scrollBehavior = scrollBehavior
                 )
             },
-            bottomBar = { BottomNav(navController = navController) },
+            bottomBar = { BottomNav(navController) },
             floatingActionButton = floatingActionButton
         ) { innerPadding ->
             content(innerPadding)

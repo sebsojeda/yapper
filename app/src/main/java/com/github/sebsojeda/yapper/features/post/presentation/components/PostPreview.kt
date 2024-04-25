@@ -33,6 +33,7 @@ fun PostPreview(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onPostClick(post.id) }
+            .padding(top = 8.dp)
             .border(1.dp, Colors.Neutral200, RoundedCornerShape(8.dp))
     ) {
         Row(

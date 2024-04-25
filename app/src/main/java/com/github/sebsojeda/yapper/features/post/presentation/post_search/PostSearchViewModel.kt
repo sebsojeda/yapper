@@ -62,51 +62,30 @@ class PostSearchViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun onPostLikeClick(post: Post) {
-        if (post.likedByUser) {
-            postUseCases.unlikePost(post.id).onEach { result ->
-                when (result) {
-                    is Resource.Loading -> {
-                        // Do nothing
-                    }
-                    is Resource.Success -> {
-                        _state.value = _state.value.copy(
-                            posts = _state.value.posts.map {
-                                if (it.id == post.id) {
-                                    it.copy(likedByUser = false, likes = it.likes - 1)
-                                } else {
-                                    it
-                                }
-                            }
-                        )
-                    }
-                    is Resource.Error -> {
-                        Log.e("PostDetailViewModel", "Error: ${result.message}")
-                    }
+    fun onToggleLike(post: Post) {
+        postUseCases.toggleLike(post.id, post.likedByUser).onEach { result ->
+            when (result) {
+                is Resource.Loading -> {
+                    // Do nothing
                 }
-            }.launchIn(viewModelScope)
-        } else {
-            postUseCases.likePost(post.id).onEach { result ->
-                when (result) {
-                    is Resource.Loading -> {
-                        // Do nothing
-                    }
-                    is Resource.Success -> {
-                        _state.value = _state.value.copy(
-                            posts = _state.value.posts.map {
-                                if (it.id == post.id) {
-                                    it.copy(likedByUser = true, likes = it.likes + 1)
-                                } else {
-                                    it
-                                }
+                is Resource.Success -> {
+                    _state.value = _state.value.copy(
+                        posts = _state.value.posts.map {
+                            if (it.id == post.id) {
+                                it.copy(
+                                    likes = if (it.likedByUser) it.likes - 1 else it.likes + 1,
+                                    likedByUser = !it.likedByUser
+                                )
+                            } else {
+                                it
                             }
-                        )
-                    }
-                    is Resource.Error -> {
-                        Log.e("PostDetailViewModel", "Error: ${result.message}")
-                    }
+                        }
+                    )
                 }
-            }.launchIn(viewModelScope)
-        }
+                is Resource.Error -> {
+                    Log.e("PostDetailViewModel", "Error: ${result.message}")
+                }
+            }
+        }.launchIn(viewModelScope)
     }
 }

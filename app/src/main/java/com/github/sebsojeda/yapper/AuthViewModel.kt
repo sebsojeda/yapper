@@ -27,12 +27,13 @@ class AuthViewModel @Inject constructor(
 
     init {
         auth.sessionStatus.onEach { status ->
-            _isAuthenticated.value = when (status) {
+            when (status) {
                 is SessionStatus.Authenticated -> {
-                    true
+                    _currentUser.value = userRepository.getUser(auth.currentUserOrNull()!!.id).toUser()
+                    _isAuthenticated.value = true
                 }
                 else -> {
-                    false
+                    _isAuthenticated.value = false
                 }
             }
         }.launchIn(viewModelScope)
@@ -42,14 +43,6 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 auth.signOut()
-            } catch (_: Exception) { }
-        }
-    }
-
-    fun currentUser() {
-        viewModelScope.launch {
-            try {
-                _currentUser.value = userRepository.getUser(auth.currentUserOrNull()?.id ?: "").toUser()
             } catch (_: Exception) { }
         }
     }

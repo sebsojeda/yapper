@@ -69,7 +69,7 @@ fun PostListScreen(
                     CommentListItem(
                         post = post,
                         onPostClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId") },
-                        onPostLikeClick = { viewModel.onPostLikeClick(post) },
+                        onPostLikeClick = { viewModel.onToggleLike(post) },
                         onPostCommentClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId?${Constants.PARAM_FOCUS_REPLY}=true") },
                         onPostReferenceClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId") }
                     )
