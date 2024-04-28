@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,7 +24,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,13 +41,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.github.sebsojeda.yapper.R
 import com.github.sebsojeda.yapper.core.Constants
-import com.github.sebsojeda.yapper.core.components.YapperLayout
+import com.github.sebsojeda.yapper.core.components.AppLayout
+import com.github.sebsojeda.yapper.core.components.RoundedInputField
 import com.github.sebsojeda.yapper.core.domain.model.MediaUpload
 import com.github.sebsojeda.yapper.core.extensions.topBorder
 import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
@@ -77,13 +74,13 @@ fun PostDetailScreen(
     val contentResolver = LocalContext.current.contentResolver
     val interactionSource = remember { MutableInteractionSource() }
 
-    YapperLayout(
+    AppLayout(
         navController = navController,
         title = { Text(text = "Post") },
         navigationIcon = {
             IconButton(
                 onClick = {
-                    navController.popBackStack()
+                    navController.navigateUp()
                 }
             ) {
                 Icon(
@@ -147,7 +144,6 @@ fun PostDetailScreen(
                     .fillMaxWidth()
                     .consumeWindowInsets(PaddingValues(bottom = innerPadding.calculateBottomPadding()))
                     .imePadding()
-                    .background(color = MaterialTheme.colorScheme.background)
                     .topBorder(1.dp, Colors.Neutral200)
                     .padding(8.dp),
             ) {
@@ -165,32 +161,14 @@ fun PostDetailScreen(
                 Column(
                     modifier = Modifier.background(color = Colors.Neutral200, shape = MaterialTheme.shapes.extraLarge),
                 ) {
-                    BasicTextField(
+                    RoundedInputField(
                         value = content,
                         onValueChange = { content = it },
+                        placeholder = "Post your reply",
                         modifier = Modifier
                             .fillMaxWidth()
                             .focusRequester(focusRequester)
-                            .onFocusChanged { hasFocus = it.isFocused },
-                        decorationBox = @Composable { innerTextField ->
-                            TextFieldDefaults.DecorationBox(
-                                value = content,
-                                innerTextField = innerTextField,
-                                enabled = true,
-                                singleLine = false,
-                                visualTransformation = VisualTransformation.None,
-                                interactionSource = interactionSource,
-                                placeholder =  { Text(text = "Post your reply", color = Colors.Neutral400) },
-                                contentPadding = PaddingValues(vertical = 8.dp , horizontal = 16.dp),
-                                colors = TextFieldDefaults.colors(
-                                    unfocusedContainerColor = Colors.Transparent,
-                                    unfocusedIndicatorColor = Colors.Transparent,
-                                    focusedContainerColor = Colors.Transparent,
-                                    focusedIndicatorColor = Colors.Transparent,
-                                ),
-                                shape = RoundedCornerShape(16.dp)
-                            )
-                        }
+                            .onFocusChanged { hasFocus = it.isFocused }
                     )
                     MediaRow(media = media, onRemoveMedia = { media = media - it }, height = 150.dp)
                 }

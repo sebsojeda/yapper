@@ -6,7 +6,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.annotations.SupabaseExperimental
 import io.github.jan.supabase.coil.CoilIntegration
+import io.github.jan.supabase.coil.coil
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.gotrue.Auth
 import io.github.jan.supabase.gotrue.FlowType
@@ -63,5 +65,12 @@ object SupabaseModule {
     @Singleton
     fun provideSupabaseRealtime(client: SupabaseClient): Realtime {
         return client.realtime
+    }
+
+    @OptIn(SupabaseExperimental::class)
+    @Provides
+    @Singleton
+    fun provideSupabaseCoilIntegration(client: SupabaseClient): CoilIntegration {
+        return client.coil
     }
 }

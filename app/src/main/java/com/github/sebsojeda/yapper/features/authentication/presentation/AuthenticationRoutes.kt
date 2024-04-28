@@ -4,6 +4,5 @@ sealed class AuthenticationRoutes(val route: String) {
     data object Auth : AuthenticationRoutes("auth")
     data object SignIn : AuthenticationRoutes("sign_in")
     data object SignUp : AuthenticationRoutes("sign_up")
-    data object SignUpConfirmation : AuthenticationRoutes("sign_up_confirmation")
     data object Welcome : AuthenticationRoutes("welcome")
 }

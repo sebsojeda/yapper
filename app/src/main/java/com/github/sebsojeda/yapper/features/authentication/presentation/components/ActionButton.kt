@@ -16,11 +16,17 @@ import com.github.sebsojeda.yapper.ui.theme.Colors
 fun ActionButton(text: String, modifier: Modifier = Modifier, enabled: Boolean = true, primary: Boolean = true, onClick: () -> Unit) {
     val defaultModifier = Modifier
         .fillMaxWidth(0.8f)
-        .border(
-            width = 1.dp,
-            color = Colors.Indigo500,
-            shape = MaterialTheme.shapes.small
-        )
+        .run {
+            if (!primary) {
+                border(
+                    width = 1.dp,
+                    color = Colors.Indigo500,
+                    shape = MaterialTheme.shapes.small
+                )
+            } else {
+                this
+            }
+        }
 
     Button(
         onClick = onClick,
@@ -30,6 +36,8 @@ fun ActionButton(text: String, modifier: Modifier = Modifier, enabled: Boolean =
         colors = ButtonDefaults.buttonColors(
             containerColor = if (primary) Colors.Indigo500 else Colors.White,
             contentColor = if (primary) Colors.White else Colors.Indigo500,
+            disabledContentColor = if (primary) Colors.Indigo500 else Colors.Indigo300,
+            disabledContainerColor = if (primary) Colors.Indigo300 else Colors.White
         ),
         contentPadding = PaddingValues(14.dp),
     ) {

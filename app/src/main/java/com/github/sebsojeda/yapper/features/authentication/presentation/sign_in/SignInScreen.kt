@@ -2,7 +2,6 @@ package com.github.sebsojeda.yapper.features.authentication.presentation.sign_in
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,7 +30,6 @@ import com.github.sebsojeda.yapper.features.authentication.presentation.Authenti
 import com.github.sebsojeda.yapper.features.authentication.presentation.components.ActionButton
 import com.github.sebsojeda.yapper.features.authentication.presentation.components.PasswordInput
 import com.github.sebsojeda.yapper.features.authentication.presentation.components.TextInput
-import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,9 +64,7 @@ fun SignInScreen(
     ) { innerPadding ->
         Box(
             contentAlignment = Alignment.BottomCenter,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+            modifier = Modifier.fillMaxWidth().padding(innerPadding)
         ) {
             Column {
                 Text(
@@ -76,12 +72,12 @@ fun SignInScreen(
                     fontWeight = FontWeight.Bold,
                     fontSize = MaterialTheme.typography.titleLarge.fontSize,
                     modifier = Modifier.padding(bottom = 32.dp),
-                    color = Colors.Neutral950
                 )
                 TextInput(
                     value = email,
                     onValueChange = { email = it },
                     placeholder = "Email",
+                    modifier = Modifier,
                     isError = state.value.error.isNotEmpty() && email.isEmpty()
                 )
                 PasswordInput(
@@ -101,7 +97,7 @@ fun SignInScreen(
                         .fillMaxWidth(0.8f)
                         .padding(vertical = 8.dp)
                 )
-                ActionButton(text = "Sign up", enabled = !state.value.isLoading, primary = false, modifier = Modifier.padding(bottom = 32.dp)) {
+                ActionButton(text = "Create account", enabled = !state.value.isLoading, primary = false, modifier = Modifier) {
                     navController.navigate(AuthenticationRoutes.SignUp.route)
                 }
             }

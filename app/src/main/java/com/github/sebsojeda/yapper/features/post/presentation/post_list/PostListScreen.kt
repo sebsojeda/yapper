@@ -22,7 +22,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.github.sebsojeda.yapper.R
 import com.github.sebsojeda.yapper.core.Constants
-import com.github.sebsojeda.yapper.core.components.YapperLayout
+import com.github.sebsojeda.yapper.core.components.AppLayout
 import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
 import com.github.sebsojeda.yapper.features.post.presentation.components.CommentListItem
 import com.github.sebsojeda.yapper.ui.theme.Colors
@@ -42,7 +42,7 @@ fun PostListScreen(
         }
     }
 
-    YapperLayout (
+    AppLayout (
         navController = navController,
         title = { Text(text = "Yapper") },
         modifier = Modifier,

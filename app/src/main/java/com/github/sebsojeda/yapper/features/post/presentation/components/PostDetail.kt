@@ -39,14 +39,13 @@ fun PostDetail(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(bottom = 8.dp)
         ) {
-            Avatar(path = post.user.avatar?.path, name = post.user.name, size = 48)
+            Avatar(imageUrl = post.user.avatar?.path, displayName = post.user.name, size = 48)
             Spacer(modifier = Modifier.padding(4.dp))
             Column {
                 Text(
                     modifier = Modifier,
                     fontWeight = FontWeight.Bold,
                     text = post.user.name,
-                    color = Colors.Neutral950
                 )
                 Text(
                     text = "@${post.user.username}",

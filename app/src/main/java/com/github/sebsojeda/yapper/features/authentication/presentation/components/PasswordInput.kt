@@ -13,12 +13,18 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @Composable
-fun PasswordInput(value: String, onValueChange: (String) -> Unit, placeholder: String, isError: Boolean = false) {
+fun PasswordInput(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    modifier: Modifier = Modifier,
+    isError: Boolean = false
+) {
     TextField(
         value = value,
         onValueChange =onValueChange,
         placeholder = { Text(text = placeholder) },
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth(0.8f),
         shape = MaterialTheme.shapes.small,
         colors = TextFieldDefaults.colors(

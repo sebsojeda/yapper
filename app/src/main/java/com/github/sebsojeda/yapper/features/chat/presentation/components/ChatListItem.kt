@@ -24,8 +24,8 @@ fun ChatListItem(img: String?, name: String?, preview: String?, onChatClick: () 
             .clickable { onChatClick() }
     ) {
         Avatar(
-            path = img,
-            name = name ?: "Unknown",
+            imageUrl = img,
+            displayName = name ?: "Unknown",
             size = 48
         )
         Spacer(modifier = Modifier.padding(8.dp))

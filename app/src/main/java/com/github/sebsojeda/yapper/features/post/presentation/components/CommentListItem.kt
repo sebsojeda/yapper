@@ -37,14 +37,13 @@ fun CommentListItem(
             .topBorder(1.dp, Colors.Neutral200)
             .padding(8.dp)
     ) {
-        Avatar(path = comment.user.avatar?.path, name = comment.user.name, size = 48)
+        Avatar(imageUrl = comment.user.avatar?.path, displayName = comment.user.name, size = 48)
         Spacer(modifier = Modifier.padding(4.dp))
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     modifier = Modifier.padding(end = 2.dp),
                     fontWeight = FontWeight.Bold,
-                    color = Colors.Neutral950,
                     text = comment.user.name,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

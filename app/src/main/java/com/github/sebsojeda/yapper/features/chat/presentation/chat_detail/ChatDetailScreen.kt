@@ -55,10 +55,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.github.sebsojeda.yapper.R
-import com.github.sebsojeda.yapper.core.components.YapperLayout
+import com.github.sebsojeda.yapper.core.components.AppLayout
 import com.github.sebsojeda.yapper.core.extensions.topBorder
 import com.github.sebsojeda.yapper.features.chat.presentation.ChatRoutes
 import com.github.sebsojeda.yapper.features.chat.presentation.components.ChatBubble
@@ -89,7 +90,7 @@ fun ChatDetailScreen(
         columnState.animateScrollToItem(columnState.layoutInfo.totalItemsCount)
     }
 
-    YapperLayout(
+    AppLayout(
         navController = navController,
         title = {
             Column(
@@ -100,15 +101,14 @@ fun ChatDetailScreen(
             ) {
                 if (state.conversation != null) {
                     Avatar(
-                        path = state.conversation.media?.path,
-                        name = state.conversation.name,
+                        imageUrl = state.conversation.media?.path,
+                        displayName = state.conversation.name,
                         size = 32)
                     Text(
                         text = state.conversation.name,
                         modifier = Modifier.padding(top = 8.dp),
-                        fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Colors.Neutral950
                     )
                 }
             }
@@ -204,6 +204,35 @@ fun ChatDetailScreen(
                         .clip(RoundedCornerShape(32.dp))
                         .background(Colors.Neutral200)
                 ) {
+//                    RoundedInputField(
+//                        value = viewModel.content,
+//                        onValueChange = { viewModel.onContentChange(it) },
+//                        placeholder = "Start a message",
+//                        modifier =  Modifier
+//                            .fillMaxWidth()
+//                            .focusRequester(focusRequester)
+//                            .onFocusChanged { hasFocus = it.isFocused },
+//                        suffix = {
+//                            IconButton(
+//                                onClick = {
+//                                    viewModel.onSendMessageClick()
+//                                },
+//                                modifier = Modifier,
+//                                enabled = viewModel.content.isNotBlank(),
+//                                colors = IconButtonDefaults.iconButtonColors(
+//                                    containerColor = Colors.Indigo500,
+//                                    contentColor = Colors.White,
+//                                    disabledContainerColor = Colors.Indigo300,
+//                                    disabledContentColor = Colors.Indigo500
+//                                )
+//                            ) {
+//                                Icon(
+//                                    painter = painterResource(id = R.drawable.paper_airplane_mini),
+//                                    contentDescription = null,
+//                                )
+//                            }
+//                        }
+//                    )
                     BasicTextField(
                         value = viewModel.content,
                         onValueChange = { viewModel.onContentChange(it) },
@@ -277,8 +306,8 @@ fun ChatDetailScreen(
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
                     Avatar(
-                        path = state.conversation.media?.path,
-                        name = state.conversation.name,
+                        imageUrl = state.conversation.media?.path,
+                        displayName = state.conversation.name,
                         size = 64)
                     Box {
                         TextField(
@@ -300,7 +329,9 @@ fun ChatDetailScreen(
                 }
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 32.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, bottom = 32.dp)
                 ) {
                     TextButton(onClick = {
                         newConversationName = state.conversation.name

@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @HiltViewModel
-open class SignUpViewModel @Inject constructor(
+class SignUpViewModel @Inject constructor(
     private val authenticationUseCases: AuthenticationUseCases,
 ): ViewModel() {
     private val _state = MutableStateFlow(SignUpState())

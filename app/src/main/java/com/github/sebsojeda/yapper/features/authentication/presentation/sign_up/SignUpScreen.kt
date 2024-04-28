@@ -3,7 +3,6 @@ package com.github.sebsojeda.yapper.features.authentication.presentation.sign_up
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,7 +31,6 @@ import com.github.sebsojeda.yapper.features.authentication.presentation.Authenti
 import com.github.sebsojeda.yapper.features.authentication.presentation.components.ActionButton
 import com.github.sebsojeda.yapper.features.authentication.presentation.components.PasswordInput
 import com.github.sebsojeda.yapper.features.authentication.presentation.components.TextInput
-import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,9 +66,7 @@ fun SignUpScreen(
     ) { innerPadding ->
         Box(
             contentAlignment = Alignment.BottomCenter,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+            modifier = Modifier.fillMaxWidth().padding(innerPadding)
         ) {
             Column {
                 Text(
@@ -78,7 +74,6 @@ fun SignUpScreen(
                     fontWeight = FontWeight.Bold,
                     fontSize = MaterialTheme.typography.titleLarge.fontSize,
                     modifier = Modifier.padding(bottom = 32.dp),
-                    color = Colors.Neutral950
                 )
                 TextInput(
                     value = name,
@@ -98,7 +93,7 @@ fun SignUpScreen(
                     placeholder = "Password",
                     isError = state.value.error.isNotEmpty() && password.length < 6
                 )
-                ActionButton(text = "Sign up", enabled = !state.value.isLoading, modifier = Modifier.padding(top = 32.dp)) {
+                ActionButton(text = "Create account", enabled = !state.value.isLoading, modifier = Modifier.padding(top = 32.dp)) {
                     viewModel.signUp(name, email, password)
                 }
                 Text(

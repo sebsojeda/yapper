@@ -18,7 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.github.sebsojeda.yapper.R
-import com.github.sebsojeda.yapper.core.components.YapperLayout
+import com.github.sebsojeda.yapper.core.components.AppLayout
 import com.github.sebsojeda.yapper.features.chat.presentation.ChatRoutes
 import com.github.sebsojeda.yapper.features.chat.presentation.components.ChatListItem
 import com.github.sebsojeda.yapper.ui.theme.Colors
@@ -30,7 +30,7 @@ fun ChatListScreen(
 ) {
     val state = viewModel.state.collectAsState()
 
-    YapperLayout (
+    AppLayout (
         navController = navController,
         title = { Text(text = "Messages") },
         modifier = Modifier,
