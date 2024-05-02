@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -39,4 +40,15 @@ fun ChatListItem(img: String?, name: String?, preview: String?, onChatClick: () 
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ChatListItemPreview() {
+    ChatListItem(
+        img = null,
+        name = "John Doe",
+        preview = "Hello, how are you?",
+        onChatClick = {}
+    )
 }

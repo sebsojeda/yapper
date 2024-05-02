@@ -56,16 +56,50 @@ fun MediaGrid(media: List<String>, bucket: String?, shape: Shape = RoundedCorner
         }
     }
 }
+@Composable
+@Preview(showBackground = true)
+fun MediaGridPreview1() {
+    MediaGrid(
+        media = listOf(
+            "https://images.unsplash.com/photo-1632216820000-4b3b3b3b3b3b"
+        ),
+        bucket = null
+    )
+}
+@Composable
+@Preview(showBackground = true)
+fun MediaGridPreview2() {
+    MediaGrid(
+        media = listOf(
+            "https://images.unsplash.com/photo-1632216820000-4b3b3b3b3b3b",
+            "https://images.unsplash.com/photo-1632216820000-4b3b3b3b3b3b"
+        ),
+        bucket = null
+    )
+}
 
 @Composable
 @Preview(showBackground = true)
-fun MediaGridPreview() {
+fun MediaGridPreview3() {
+    MediaGrid(
+        media = listOf(
+            "https://images.unsplash.com/photo-1632216820000-4b3b3b3b3b3b",
+            "https://images.unsplash.com/photo-1632216820000-4b3b3b3b3b3b",
+            "https://images.unsplash.com/photo-1632216820000-4b3b3b3b3b3b"
+        ),
+        bucket = null
+    )
+}
+
+@Composable
+@Preview(showBackground = true)
+fun MediaGridPreview4() {
     MediaGrid(
         media = listOf(
             "https://images.unsplash.com/photo-1632216820000-4b3b3b3b3b3b",
             "https://images.unsplash.com/photo-1632216820000-4b3b3b3b3b3b",
             "https://images.unsplash.com/photo-1632216820000-4b3b3b3b3b3b",
-            "https://images.unsplash.com/photo-1632216820000-4b3b3b3b3b3b",
+            "https://images.unsplash.com/photo-1632216820000-4b3b3b3b3b3b"
         ),
         bucket = null
     )

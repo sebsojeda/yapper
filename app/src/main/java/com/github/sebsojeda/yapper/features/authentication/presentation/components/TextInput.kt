@@ -7,6 +7,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @Composable
@@ -32,8 +33,19 @@ fun TextInput(
             errorContainerColor = Colors.Transparent,
             errorIndicatorColor = Colors.Red500,
             errorCursorColor = Colors.Red500,
+            cursorColor = Colors.Neutral950
         ),
         singleLine = true,
         isError = isError,
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TextInputPreview() {
+    TextInput(
+        value = "Text",
+        onValueChange = {},
+        placeholder = "Placeholder"
     )
 }

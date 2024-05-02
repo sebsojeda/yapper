@@ -48,7 +48,7 @@ class PostRemoteDataSource @Inject constructor(
     suspend fun createPost(post: CreatePostDto): GetPostDto =
         withContext(Dispatchers.IO) {
             dataSource.from(Constants.TABLE_POSTS)
-                .insert(post) { select(Columns.raw("*, likes:likes(*), post_media:post_media(*, media:media(*)), user:user_id(*)")) }
+                .insert(post) { select(Columns.raw("*, likes:likes(*), post_media:post_media(*, media:media(*)), user:user_id(*), post_reference:post_id(*, user:user_id(*), post_media:post_media(*, media:media(*)))")) }
                 .decodeSingle<GetPostDto>()
         }
 

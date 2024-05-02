@@ -3,7 +3,7 @@ package com.github.sebsojeda.yapper.core.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -13,8 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.github.sebsojeda.yapper.R
 import com.github.sebsojeda.yapper.core.extensions.topBorder
 import com.github.sebsojeda.yapper.features.chat.presentation.ChatRoutes
@@ -22,25 +20,20 @@ import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
 import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @Composable
-fun BottomNav(
-    navController: NavController,
+fun BottomBar(
+    currentRoute: String?,
+    navigateTo: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val currentRoute = navController.currentBackStackEntry?.destination?.route
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = modifier
             .fillMaxWidth()
-            .padding(bottom = 16.dp)
+            .navigationBarsPadding()
             .topBorder(1.dp, Colors.Neutral200)
     ) {
         BottomNavItem(
-            onClick = {
-                navController.navigate(PostRoutes.PostList.route) {
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            },
+            onClick = { navigateTo(PostRoutes.PostList.route) },
             icon = { isSelected ->
                 Icon(
                     painter = painterResource(id = if (isSelected) R.drawable.home_solid else R.drawable.home_outline),
@@ -48,16 +41,11 @@ fun BottomNav(
                     tint = Colors.Indigo500
                 )
             },
-            isSelected = currentRoute == PostRoutes.PostList.route,
+            isSelected = listOf(PostRoutes.PostList.route, PostRoutes.PostDetail.route).any { currentRoute?.startsWith(it) == true },
             modifier = Modifier.weight(1f)
         )
         BottomNavItem(
-            onClick = {
-                navController.navigate(PostRoutes.PostSearch.route) {
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            },
+            onClick = { navigateTo(PostRoutes.PostSearch.route) },
             icon = { isSelected ->
                 Icon(
                     painter = painterResource(id = if (isSelected) R.drawable.magnifying_glass_outline else R.drawable.magnifying_glass_outline),
@@ -65,7 +53,7 @@ fun BottomNav(
                     tint = Colors.Indigo500
                 )
             },
-            isSelected = currentRoute == PostRoutes.PostSearch.route,
+            isSelected = currentRoute?.startsWith(PostRoutes.PostSearch.route) == true,
             modifier = Modifier.weight(1f)
         )
         BottomNavItem(
@@ -77,16 +65,11 @@ fun BottomNav(
                     tint = Colors.Indigo500
                 )
             },
-            isSelected = currentRoute == PostRoutes.PostCreate.route,
+            isSelected = false,
             modifier = Modifier.weight(1f)
         )
         BottomNavItem(
-            onClick = {
-                navController.navigate(ChatRoutes.ChatList.route) {
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            },
+            onClick = { navigateTo(ChatRoutes.ChatList.route) },
             icon = { isSelected ->
                 Icon(
                     painter = painterResource(id = if (isSelected) R.drawable.envelope_solid else R.drawable.envelope_outline),
@@ -94,7 +77,7 @@ fun BottomNav(
                     tint = Colors.Indigo500
                 )
             },
-            isSelected = currentRoute == ChatRoutes.ChatList.route,
+            isSelected = listOf(ChatRoutes.ChatList.route, ChatRoutes.ChatDetail.route).any { currentRoute?.startsWith(it) == true },
             modifier = Modifier.weight(1f)
         )
     }
@@ -127,6 +110,9 @@ fun BottomNavItem(
 
 @Preview(showBackground = true)
 @Composable
-fun BottomNavPreview() {
-    BottomNav(navController = rememberNavController())
+fun BottomBarPreview() {
+    BottomBar(
+        currentRoute = PostRoutes.PostList.route,
+        navigateTo = {}
+    )
 }

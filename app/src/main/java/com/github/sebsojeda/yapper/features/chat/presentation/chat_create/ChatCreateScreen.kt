@@ -16,7 +16,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -31,28 +30,26 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.github.sebsojeda.yapper.features.chat.presentation.ChatRoutes
 import com.github.sebsojeda.yapper.features.chat.presentation.components.TextChip
 import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @Composable
 fun ChatCreateScreen(
-    navController: NavController,
-    viewModel: ChatCreateViewModel = hiltViewModel()
+    state: ChatCreateState,
+    onCreateChat: (List<String>, String) -> Unit,
+    navigateToChatDetail: (String) -> Unit,
+    navigateBack: () -> Unit,
 ) {
-    val state = viewModel.state.collectAsState()
     val focusRequester = remember { FocusRequester() }
     var participant by remember { mutableStateOf("") }
     val participants = remember { mutableStateListOf<String>() }
     var content by remember { mutableStateOf("") }
 
-    if (state.value.isChatCreated) {
-        navController.navigate(ChatRoutes.ChatDetail.route + "/${state.value.conversationId}")
+    LaunchedEffect(state.conversationId) {
+        if (state.conversationId != null) {
+            navigateToChatDetail(state.conversationId)
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -68,17 +65,13 @@ fun ChatCreateScreen(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             TextButton(
-                onClick = {
-                    navController.popBackStack()
-                },
-                enabled = !state.value.isLoading,
+                onClick = navigateBack,
+                enabled = !state.isLoading,
                 modifier = Modifier.align(Alignment.CenterVertically)) {
                 Text("Cancel", color = Colors.Neutral950)
             }
             Button(
-                onClick = {
-                    viewModel.createChat(participants, content)
-                },
+                onClick = { onCreateChat(participants, content) },
                 modifier = Modifier
                     .align(Alignment.CenterVertically),
                 colors = ButtonDefaults.buttonColors(
@@ -86,7 +79,7 @@ fun ChatCreateScreen(
                     disabledContainerColor = Colors.Indigo300,
                     disabledContentColor = Colors.Indigo500,
                 ),
-                enabled = content.isNotBlank() && !state.value.isLoading && participants.isNotEmpty()
+                enabled = content.isNotBlank() && !state.isLoading && participants.isNotEmpty()
             ) {
                 Text("Send")
             }
@@ -115,7 +108,11 @@ fun ChatCreateScreen(
                     .focusRequester(focusRequester)
                     .onFocusChanged {
                         if (!it.isFocused && participant.isNotBlank()) {
-                            participants.add(participant.trim().removePrefix("@"))
+                            participants.add(
+                                participant
+                                    .trim()
+                                    .removePrefix("@")
+                            )
                             participant = ""
                         }
                     }
@@ -148,19 +145,14 @@ fun ChatCreateScreen(
                     focusedContainerColor = Colors.Transparent,
                     unfocusedIndicatorColor = Colors.Transparent,
                     focusedIndicatorColor = Colors.Transparent,
+                    cursorColor = Colors.Neutral950
                 )
             )
         }
     }
 
-    if (state.value.error.isNotBlank()) {
-        Log.e("ChatCreateScreen", state.value.error)
-        Toast.makeText(LocalContext.current, state.value.error, Toast.LENGTH_SHORT).show()
+    if (state.error.isNotBlank()) {
+        Log.e("ChatCreateScreen", state.error)
+        Toast.makeText(LocalContext.current, state.error, Toast.LENGTH_SHORT).show()
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PostCreateScreenPreview() {
-    ChatCreateScreen(navController = rememberNavController())
 }

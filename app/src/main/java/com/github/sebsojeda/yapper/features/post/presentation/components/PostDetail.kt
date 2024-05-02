@@ -57,7 +57,7 @@ fun PostDetail(
             Text(
                 overflow = TextOverflow.Ellipsis,
                 text = post.content,
-                modifier = Modifier.padding(bottom = 2.dp),
+                modifier = Modifier.padding(bottom = 8.dp),
             )
             MediaGrid(media = post.postMedia.map { it.media.path }, bucket = Constants.BUCKET_PUBLIC_MEDIA)
             if (post.postReference != null) {

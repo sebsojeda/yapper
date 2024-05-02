@@ -72,7 +72,7 @@ class PostDetailViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun onPostCommentClick(content: String, media: List<MediaUpload>) {
+    fun createComment(content: String, media: List<MediaUpload>) {
         postUseCases.createComment(content, _state.value.postId, media).onEach { result ->
             when (result) {
                 is Resource.Loading -> {
@@ -91,7 +91,7 @@ class PostDetailViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun onToggleLike(post: Post) {
+    fun toggleLike(post: Post) {
         postUseCases.toggleLike(post.id, post.likedByUser).onEach { result ->
             when (result) {
                 is Resource.Error -> {
@@ -113,7 +113,7 @@ class PostDetailViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun onToggleCommentLike(comment: Comment) {
+    fun toggleCommentLike(comment: Comment) {
         postUseCases.toggleLike(comment.id, comment.likedByUser).onEach { result ->
             when (result) {
                 is Resource.Error -> {

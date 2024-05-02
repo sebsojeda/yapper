@@ -10,12 +10,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.github.sebsojeda.yapper.R
 import com.github.sebsojeda.yapper.core.Constants
 import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @Composable
-fun MediaPicker(onSelectMedia: (List<Uri>) -> Unit, modifier: Modifier = Modifier) {
+fun MediaPicker(modifier: Modifier = Modifier, onSelectMedia: (List<Uri>) -> Unit) {
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(Constants.POST_MAX_MEDIA)) {
         onSelectMedia(it)
     }
@@ -30,4 +31,10 @@ fun MediaPicker(onSelectMedia: (List<Uri>) -> Unit, modifier: Modifier = Modifie
         }
     }
 
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MediaPickerPreview() {
+    MediaPicker {}
 }

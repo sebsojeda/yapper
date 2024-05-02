@@ -1,6 +1,5 @@
 package com.github.sebsojeda.yapper.features.post.presentation.post_search
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -10,13 +9,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -24,35 +20,48 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.github.sebsojeda.yapper.R
 import com.github.sebsojeda.yapper.core.Constants
 import com.github.sebsojeda.yapper.core.components.AppLayout
+import com.github.sebsojeda.yapper.core.components.Loading
 import com.github.sebsojeda.yapper.core.components.RoundedInputField
+import com.github.sebsojeda.yapper.core.domain.model.MediaUpload
 import com.github.sebsojeda.yapper.core.extensions.bottomBorder
+import com.github.sebsojeda.yapper.features.post.domain.model.Post
 import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
-import com.github.sebsojeda.yapper.features.post.presentation.components.CommentListItem
+import com.github.sebsojeda.yapper.features.post.presentation.components.PostCreateDialog
+import com.github.sebsojeda.yapper.features.post.presentation.components.PostListItem
 import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @Composable
 fun PostSearchScreen(
-    navController: NavController,
-    viewModel: PostSearchViewModel = hiltViewModel(),
+    state: PostSearchState,
+    currentRoute: String?,
+    navigateTo: (String) -> Unit,
+    toggleLike: (Post) -> Unit,
+    search: (String) -> Unit,
+    createPost: (String, List<MediaUpload>) -> Unit
 ) {
-    val state = viewModel.state.collectAsState()
-    val search = remember { mutableStateOf("") }
+    val query = remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val openCreatePostDialog = remember { mutableStateOf(false) }
+
+    if (openCreatePostDialog.value) {
+        PostCreateDialog(onCancel = { openCreatePostDialog.value = false }) { content, media ->
+            createPost(content, media)
+            openCreatePostDialog.value = false
+        }
+    }
 
     AppLayout (
-        navController = navController,
         title = {
             RoundedInputField(
-                value = search.value,
+                value = query.value,
                 onValueChange = {
-                    search.value = it
-                    viewModel.searchPosts(it)
+                    query.value = it
+                    search(it)
                 },
                 placeholder = "Search",
                 modifier = Modifier.width(200.dp),
@@ -66,7 +75,7 @@ fun PostSearchScreen(
                 },
                 keyboardActions = KeyboardActions(
                     onSearch = {
-                        viewModel.searchPosts(search.value)
+                        search(query.value)
                         keyboardController?.hide()
                     }
                 ),
@@ -75,9 +84,11 @@ fun PostSearchScreen(
                 )
             )
         },
+        currentRoute = currentRoute,
+        navigateTo = navigateTo,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate(PostRoutes.PostCreate.route) },
+                onClick = { openCreatePostDialog.value = true },
                 shape = CircleShape,
                 containerColor = Colors.Indigo500,
                 contentColor = Colors.White
@@ -90,42 +101,86 @@ fun PostSearchScreen(
         }
     ) { innerPadding ->
         Box(
-            modifier = Modifier
-                .padding(innerPadding)
-                .background(color = MaterialTheme.colorScheme.background)
+            modifier = Modifier.fillMaxSize().padding(innerPadding)
         ) {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                item {
-                    if (search.value.isEmpty()) {
-                        Text(text = "Popular", modifier = Modifier
-                            .padding(16.dp)
-                            .bottomBorder(2.dp, Colors.Indigo500))
-                    } else {
-                        Text(text = "Search results for \"${search.value}\"", color = Colors.Neutral400, modifier = Modifier.padding(16.dp))
-                    }
-                }
-                items(state.value.posts) { post ->
-                    CommentListItem(
-                        post = post,
-                        onPostClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId") },
-                        onPostLikeClick = { viewModel.onToggleLike(post) },
-                        onPostCommentClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId?${Constants.PARAM_FOCUS_REPLY}=true") },
-                        onPostReferenceClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId") }
-                    )
-                }
-            }
-            if (state.value.error.isNotBlank()) {
-                Text(text = state.value.error, modifier = Modifier.align(Alignment.Center))
-            }
-            if (state.value.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
-            if (!state.value.isLoading && state.value.posts.isEmpty()) {
+            if (state.isLoading) {
+                Loading(modifier = Modifier.align(Alignment.Center))
+            } else if (state.error.isNotBlank()) {
+                Text(
+                    text = state.error,
+                    color = Colors.Red500,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            } else if (state.posts.isEmpty()) {
                 Text(text = "No posts...yet",
                     modifier = Modifier.align(Alignment.Center),
                     color = Colors.Neutral400
                 )
+            } else {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    item {
+                        if (query.value.isEmpty()) {
+                            Text(text = "Popular", modifier = Modifier
+                                .padding(16.dp)
+                                .bottomBorder(2.dp, Colors.Indigo500))
+                        } else {
+                            Text(text = "Search results for \"${query.value}\"", color = Colors.Neutral400, modifier = Modifier.padding(16.dp))
+                        }
+                    }
+                    items(state.posts) { post ->
+                        PostListItem(
+                            post = post,
+                            onClick = { navigateTo("${PostRoutes.PostDetail.route}/${post.id}") },
+                            onLikeClick = { toggleLike(post) },
+                            onCommentClick = { navigateTo("${PostRoutes.PostDetail.route}/${post.id}?${Constants.PARAM_FOCUS_REPLY}=true") },
+                            onReferenceClick = { if (post.postReference != null) navigateTo("${PostRoutes.PostDetail.route}/${post.postReference.id}") }
+                        )
+                    }
+                }
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PostSearchScreenPreviewLoading() {
+    PostSearchScreen(
+        state = PostSearchState(
+            isLoading = true
+        ),
+        currentRoute = PostRoutes.PostSearch.route,
+        navigateTo = {},
+        toggleLike = {},
+        search = { },
+        createPost = { _, _ -> }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PostSearchScreenPreviewError() {
+    PostSearchScreen(
+        state = PostSearchState(
+            error = "An unexpected error occurred"
+        ),
+        currentRoute = PostRoutes.PostSearch.route,
+        navigateTo = {},
+        toggleLike = {},
+        search = { },
+        createPost = { _, _ -> }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PostSearchScreenPreviewEmpty() {
+    PostSearchScreen(
+        state = PostSearchState(),
+        currentRoute = PostRoutes.PostSearch.route,
+        navigateTo = {},
+        toggleLike = {},
+        search = { },
+        createPost = { _, _ -> }
+    )
 }

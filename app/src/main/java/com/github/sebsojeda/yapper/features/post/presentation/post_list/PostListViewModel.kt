@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.sebsojeda.yapper.core.Constants
 import com.github.sebsojeda.yapper.core.Resource
+import com.github.sebsojeda.yapper.core.domain.model.MediaUpload
 import com.github.sebsojeda.yapper.features.post.domain.model.Post
 import com.github.sebsojeda.yapper.features.post.domain.usecase.PostUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,7 +27,7 @@ class PostListViewModel @Inject constructor(
         getPosts()
     }
 
-    fun getPosts() {
+    private fun getPosts() {
         postUseCases.getPosts(Constants.POST_REFRESH_INTERVAL).onEach { result ->
             _state.value = when (result) {
                 is Resource.Loading -> _state.value.copy(isLoading = true)
@@ -42,7 +43,7 @@ class PostListViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun onToggleLike(post: Post) {
+    fun toggleLike(post: Post) {
         postUseCases.toggleLike(post.id, post.likedByUser).onEach { result ->
             when (result) {
                 is Resource.Loading -> {
@@ -65,6 +66,21 @@ class PostListViewModel @Inject constructor(
                 is Resource.Error -> {
                     Log.e("PostDetailViewModel", "Error: ${result.message}")
                 }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    fun createPost(content: String, media: List<MediaUpload>) {
+        postUseCases.createPost(content, media).onEach { result ->
+            Log.d("PostListViewModel", "createPost: ${result.message}")
+            when (result) {
+                is Resource.Loading -> {}
+                is Resource.Success -> _state.value = _state.value.copy(
+                    posts = _state.value.posts.toMutableList().apply{
+                        add(0, result.data!!)
+                    }
+                )
+                is Resource.Error -> {}
             }
         }.launchIn(viewModelScope)
     }

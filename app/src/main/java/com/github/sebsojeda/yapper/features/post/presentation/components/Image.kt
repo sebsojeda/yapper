@@ -3,7 +3,6 @@ package com.github.sebsojeda.yapper.features.post.presentation.components
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
@@ -29,6 +28,6 @@ fun Image(uri: String, modifier: Modifier = Modifier, bucket: String? = null) {
         onSuccess = { image ->
             Log.d("Image", "Image loaded: ${image.result.request}")
         },
-        fallback = ColorPainter(Color.LightGray)
+        fallback = ColorPainter(Colors.Neutral200)
     )
 }

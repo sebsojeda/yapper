@@ -25,21 +25,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,18 +46,15 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.github.sebsojeda.yapper.R
+import com.github.sebsojeda.yapper.core.LocalAuthContext
 import com.github.sebsojeda.yapper.core.components.AppLayout
 import com.github.sebsojeda.yapper.core.extensions.topBorder
-import com.github.sebsojeda.yapper.features.chat.presentation.ChatRoutes
 import com.github.sebsojeda.yapper.features.chat.presentation.components.ChatBubble
+import com.github.sebsojeda.yapper.features.chat.presentation.components.ConversationBottomSheet
 import com.github.sebsojeda.yapper.ui.theme.Colors
-import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -72,26 +62,41 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatDetailScreen(
-    navController: NavController,
-    viewModel: ChatDetailViewModel = hiltViewModel(),
+    state: ChatDetailState,
+    currentRoute: String?,
+    navigateTo: (String) -> Unit,
+    navigateBack: () -> Unit,
+    createMessage: (String) -> Unit,
 ) {
-    val state = viewModel.state.collectAsState().value
-    val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
     val localFocusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
-    val scope = rememberCoroutineScope()
     var hasFocus by remember { mutableStateOf(false) }
     val columnState = rememberLazyListState()
-    var newConversationName by remember { mutableStateOf(state.conversation?.name) }
     val interactionSource = remember { MutableInteractionSource() }
+    var content by remember { mutableStateOf("") }
+    val auth = LocalAuthContext.current
+
+    fun parseDate(timestamp: String): String {
+        if (timestamp.isEmpty()) return ""
+        val inputFormatter = DateTimeFormatter.ISO_DATE_TIME
+        val outputFormatter = DateTimeFormatter.ofPattern("MMMM d, yyyy")
+        val dateTime = ZonedDateTime.parse(timestamp, inputFormatter)
+        val localDateTime = dateTime.withZoneSameInstant(ZoneId.systemDefault())
+        return localDateTime.format(outputFormatter)
+    }
 
     LaunchedEffect(state.messages.size){
         columnState.animateScrollToItem(columnState.layoutInfo.totalItemsCount)
     }
 
+    LaunchedEffect(state.focusReply) {
+        if (state.focusReply) {
+            focusRequester.requestFocus()
+        }
+    }
+
     AppLayout(
-        navController = navController,
         title = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -113,13 +118,11 @@ fun ChatDetailScreen(
                 }
             }
         },
+        currentRoute = currentRoute,
+        navigateTo = navigateTo,
         navigationIcon = {
             IconButton(
-                onClick = {
-                    navController.navigate(ChatRoutes.ChatList.route) {
-                        popUpTo(ChatRoutes.ChatList.route) { inclusive = true }
-                    }
-                }
+                onClick = navigateBack,
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.arrow_left_outline),
@@ -150,23 +153,25 @@ fun ChatDetailScreen(
                     }
             ) {
                 items(state.messages) { message ->
-                    val align: Alignment.Horizontal?
+                    val alignment: Alignment.Horizontal?
                     val color: Color?
-                    if (state.conversation?.participants?.any { it.userId == message.user.id } == true) {
-                        align = Alignment.Start
+                    if (message.user.id != auth.user.id) {
+                        alignment = Alignment.Start
                         color = Colors.Neutral400
                     } else {
-                        align = Alignment.End
+                        alignment = Alignment.End
                         color = Colors.Indigo500
                     }
-                    val messageDay = parseDay(message.createdAt)
+                    val messageDate = remember { parseDate(message.createdAt) }
                     val previousMessageIndex = state.messages.indexOf(message) - 1
-                    val previousMessageDay = if (previousMessageIndex >= 0) {
-                        parseDay(state.messages[previousMessageIndex].createdAt)
-                    } else {
-                        ""
+                    val previousMessageDate = remember {
+                        if (previousMessageIndex >= 0) {
+                            parseDate(state.messages[previousMessageIndex].createdAt)
+                        } else {
+                            ""
+                        }
                     }
-                    if (messageDay != previousMessageDay) {
+                    if (messageDate != previousMessageDate) {
                         Row(
                             horizontalArrangement = Arrangement.Center,
                             modifier = Modifier
@@ -174,7 +179,7 @@ fun ChatDetailScreen(
                                 .padding(8.dp)
                         ) {
                             Text(
-                                text = messageDay,
+                                text = messageDate,
                                 modifier = Modifier,
                                 color = Colors.Neutral400,
                                 style = MaterialTheme.typography.bodySmall,
@@ -184,7 +189,7 @@ fun ChatDetailScreen(
                     }
                     ChatBubble(
                         message = message.content,
-                        align = align,
+                        align = alignment,
                         color = color,
                         timestamp = message.createdAt
                     )
@@ -204,38 +209,9 @@ fun ChatDetailScreen(
                         .clip(RoundedCornerShape(32.dp))
                         .background(Colors.Neutral200)
                 ) {
-//                    RoundedInputField(
-//                        value = viewModel.content,
-//                        onValueChange = { viewModel.onContentChange(it) },
-//                        placeholder = "Start a message",
-//                        modifier =  Modifier
-//                            .fillMaxWidth()
-//                            .focusRequester(focusRequester)
-//                            .onFocusChanged { hasFocus = it.isFocused },
-//                        suffix = {
-//                            IconButton(
-//                                onClick = {
-//                                    viewModel.onSendMessageClick()
-//                                },
-//                                modifier = Modifier,
-//                                enabled = viewModel.content.isNotBlank(),
-//                                colors = IconButtonDefaults.iconButtonColors(
-//                                    containerColor = Colors.Indigo500,
-//                                    contentColor = Colors.White,
-//                                    disabledContainerColor = Colors.Indigo300,
-//                                    disabledContentColor = Colors.Indigo500
-//                                )
-//                            ) {
-//                                Icon(
-//                                    painter = painterResource(id = R.drawable.paper_airplane_mini),
-//                                    contentDescription = null,
-//                                )
-//                            }
-//                        }
-//                    )
                     BasicTextField(
-                        value = viewModel.content,
-                        onValueChange = { viewModel.onContentChange(it) },
+                        value = content,
+                        onValueChange = { content = it },
                         modifier = Modifier
                             .weight(1f)
                             .padding(horizontal = 16.dp, vertical = 12.dp)
@@ -243,7 +219,7 @@ fun ChatDetailScreen(
                             .onFocusChanged { hasFocus = it.isFocused },
                         decorationBox = @Composable { innerTextField ->
                             TextFieldDefaults.DecorationBox(
-                                value = viewModel.content,
+                                value = content,
                                 innerTextField = innerTextField,
                                 enabled = true,
                                 singleLine = false,
@@ -261,16 +237,17 @@ fun ChatDetailScreen(
                                     unfocusedIndicatorColor = Colors.Transparent,
                                     focusedContainerColor = Colors.Transparent,
                                     focusedIndicatorColor = Colors.Transparent,
+                                    cursorColor = Colors.Neutral950
                                 )
                             )
                         }
                     )
                     IconButton(
                         onClick = {
-                            viewModel.onSendMessageClick()
+                            createMessage(content)
+                            content = ""
                         },
-                        modifier = Modifier,
-                        enabled = viewModel.content.isNotBlank(),
+                        enabled = content.isNotBlank(),
                         colors = IconButtonDefaults.iconButtonColors(
                             containerColor = Colors.Indigo500,
                             contentColor = Colors.White,
@@ -288,85 +265,10 @@ fun ChatDetailScreen(
         }
 
         if (showBottomSheet && state.conversation != null) {
-            ModalBottomSheet(
-                onDismissRequest = {
-                    showBottomSheet = false
-                },
-                sheetState = sheetState
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        "Conversation Details",
-                        color = Colors.Neutral950,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                    Avatar(
-                        imageUrl = state.conversation.media?.path,
-                        displayName = state.conversation.name,
-                        size = 64)
-                    Box {
-                        TextField(
-                            value = newConversationName ?: state.conversation.name,
-                            onValueChange = { newConversationName = it },
-                            modifier = Modifier
-                                .align(Alignment.Center),
-                            colors = TextFieldDefaults.colors(
-                                unfocusedContainerColor = Colors.Transparent,
-                                focusedContainerColor = Colors.Transparent,
-                                unfocusedIndicatorColor = Colors.Transparent,
-                                focusedIndicatorColor = Colors.Transparent,
-                                disabledContainerColor = Colors.Transparent,
-                                disabledIndicatorColor = Colors.Transparent,
-                            ),
-                            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
-                        )
-                    }
-                }
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, bottom = 32.dp)
-                ) {
-                    TextButton(onClick = {
-                        newConversationName = state.conversation.name
-                        scope.launch { sheetState.hide() }.invokeOnCompletion {
-                            if (!sheetState.isVisible) {
-                                showBottomSheet = false
-                            }
-                        }
-                    }) {
-                        Text("Cancel", color = Colors.Neutral950)
-                    }
-                    TextButton(onClick = {
-
-                    }) {
-                        Text("Save", color = Colors.Indigo500)
-                    }
-                }
-            }
+            ConversationBottomSheet(
+                conversation = state.conversation,
+                onClose = { showBottomSheet = false }
+            )
         }
     }
-
-    LaunchedEffect(state.focusReply) {
-        if (state.focusReply) {
-            focusRequester.requestFocus()
-        }
-    }
-}
-
-fun parseDay(timestamp: String): String {
-    if (timestamp.isEmpty()) return ""
-    val inputFormatter = DateTimeFormatter.ISO_DATE_TIME
-    val outputFormatter = DateTimeFormatter.ofPattern("MMMM d, yyyy")
-
-    val dateTime = ZonedDateTime.parse(timestamp, inputFormatter)
-    val localDateTime = dateTime.withZoneSameInstant(ZoneId.systemDefault())
-
-    return localDateTime.format(outputFormatter)
 }

@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.github.sebsojeda.yapper.R
@@ -44,4 +45,15 @@ fun MediaRow(media: List<Uri>, bucket: String? = null, shape: Shape = RoundedCor
             Spacer(modifier = Modifier.width(8.dp))
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MediaRowPreview() {
+    MediaRow(
+        media = listOf(
+            Uri.parse("https://picsum.photos/200/300"),
+            Uri.parse("https://picsum.photos/200/300")
+        ),
+    )
 }

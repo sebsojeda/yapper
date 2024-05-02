@@ -27,15 +27,14 @@ class ChatCreateViewModel @Inject constructor(
                     }
                     is Resource.Success -> {
                         _state.value = _state.value.copy(
-                            isLoading = false,
-                            isChatCreated = true,
-                            conversationId = result.data?.id
+                            conversationId = result.data?.id,
+                            isLoading = false
                         )
                     }
                     is Resource.Error -> {
                         _state.value = ChatCreateState(
                             error = result.message ?: "An unexpected error occurred",
-                            isLoading = false,
+                            isLoading = false
                         )
                     }
                 }

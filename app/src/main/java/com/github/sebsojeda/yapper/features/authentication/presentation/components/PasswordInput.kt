@@ -35,6 +35,7 @@ fun PasswordInput(
             errorContainerColor = Colors.Transparent,
             errorIndicatorColor = Colors.Red500,
             errorCursorColor = Colors.Red500,
+            cursorColor = Colors.Neutral950
         ),
         singleLine = true,
         isError = isError,

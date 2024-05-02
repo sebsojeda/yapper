@@ -24,17 +24,17 @@ import com.github.sebsojeda.yapper.ui.theme.Colors
 import kotlinx.datetime.toInstant
 
 @Composable
-fun CommentListItem(
+fun PostListItem(
     post: Post,
-    onPostClick: (String) -> Unit,
-    onPostReferenceClick: (String) -> Unit,
-    onPostLikeClick: () -> Unit,
-    onPostCommentClick: (String) -> Unit,
+    onClick: () -> Unit,
+    onLikeClick: () -> Unit,
+    onCommentClick: () -> Unit,
+    onReferenceClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onPostClick(post.id) }
+            .clickable { onClick() }
             .topBorder(1.dp, Colors.Neutral200)
             .padding(8.dp)
     ) {
@@ -72,12 +72,12 @@ fun CommentListItem(
             MediaGrid(media = post.postMedia.map { it.media.path }, bucket = Constants.BUCKET_PUBLIC_MEDIA)
             if (post.postReference != null) {
                 PostPreview(post = post.postReference, onPostClick = {
-                    onPostReferenceClick(post.postReference.id)
+                    onReferenceClick()
                 })
             }
             Row(modifier = Modifier.padding(top = 2.dp)) {
-                Likes(likedByUser = post.likedByUser, likes = post.likes, onPostLikeClick = { onPostLikeClick() })
-                Comments(comments = post.comments, onPostCommentClick = { onPostCommentClick(post.id) })
+                Likes(likedByUser = post.likedByUser, likes = post.likes, onPostLikeClick = onLikeClick)
+                Comments(comments = post.comments, onPostCommentClick = { onCommentClick() })
             }
         }
     }
@@ -86,7 +86,7 @@ fun CommentListItem(
 @Composable
 @Preview(showBackground = true)
 fun PostListItemPreview() {
-    CommentListItem(
+    PostListItem(
         post = Post(
             id = "1",
             userId = "1",
@@ -106,9 +106,9 @@ fun PostListItemPreview() {
             postMedia = emptyList(),
             postReference = null,
         ),
-        onPostClick = {},
-        onPostLikeClick = {},
-        onPostCommentClick = {},
-        onPostReferenceClick = {},
+        onClick = {},
+        onLikeClick = {},
+        onCommentClick = {},
+        onReferenceClick = {},
     )
 }

@@ -12,6 +12,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.sebsojeda.yapper.features.user.domain.model.User
 import com.github.sebsojeda.yapper.ui.theme.Colors
@@ -44,4 +45,19 @@ fun AppDrawer(user: User?, onSignOutClick: () -> Unit) {
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AppDrawerPreview() {
+    AppDrawer(
+        user = User(
+            id = "1",
+            name = "John Doe",
+            username = "johndoe",
+            avatar = null,
+            createdAt = "2021-01-01T00:00:00Z",
+        ),
+        onSignOutClick = {}
+    )
 }

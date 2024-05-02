@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.sebsojeda.yapper.core.Constants
 import com.github.sebsojeda.yapper.core.Resource
+import com.github.sebsojeda.yapper.core.domain.model.MediaUpload
 import com.github.sebsojeda.yapper.features.post.domain.model.Post
 import com.github.sebsojeda.yapper.features.post.domain.usecase.PostUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,7 +43,7 @@ class PostSearchViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun searchPosts(search: String) {
+    fun search(search: String) {
         if (search.isEmpty()) {
             getPosts()
             return
@@ -62,7 +63,7 @@ class PostSearchViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun onToggleLike(post: Post) {
+    fun toggleLike(post: Post) {
         postUseCases.toggleLike(post.id, post.likedByUser).onEach { result ->
             when (result) {
                 is Resource.Loading -> {
@@ -85,6 +86,17 @@ class PostSearchViewModel @Inject constructor(
                 is Resource.Error -> {
                     Log.e("PostDetailViewModel", "Error: ${result.message}")
                 }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    fun createPost(content: String, media: List<MediaUpload>) {
+        postUseCases.createPost(content, media).onEach { result ->
+            Log.d("PostListViewModel", "createPost: ${result.message}")
+            when (result) {
+                is Resource.Loading -> {}
+                is Resource.Success -> {}
+                is Resource.Error -> {}
             }
         }.launchIn(viewModelScope)
     }

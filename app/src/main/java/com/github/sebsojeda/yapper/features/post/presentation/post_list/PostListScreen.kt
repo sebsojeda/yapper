@@ -6,50 +6,54 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.ui.tooling.preview.Preview
 import com.github.sebsojeda.yapper.R
 import com.github.sebsojeda.yapper.core.Constants
 import com.github.sebsojeda.yapper.core.components.AppLayout
+import com.github.sebsojeda.yapper.core.components.Loading
+import com.github.sebsojeda.yapper.core.domain.model.Media
+import com.github.sebsojeda.yapper.core.domain.model.MediaUpload
+import com.github.sebsojeda.yapper.features.post.domain.model.Post
+import com.github.sebsojeda.yapper.features.post.domain.model.PostMedia
 import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
-import com.github.sebsojeda.yapper.features.post.presentation.components.CommentListItem
+import com.github.sebsojeda.yapper.features.post.presentation.components.PostCreateDialog
+import com.github.sebsojeda.yapper.features.post.presentation.components.PostListItem
+import com.github.sebsojeda.yapper.features.user.domain.model.User
 import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @Composable
 fun PostListScreen(
-    navController: NavController,
-    viewModel: PostListViewModel = hiltViewModel(),
+    state: PostListState,
+    currentRoute: String?,
+    navigateTo: (String) -> Unit,
+    toggleLike: (Post) -> Unit,
+    createPost: (String, List<MediaUpload>) -> Unit
 ) {
-    val state = viewModel.state.collectAsState()
-    val backStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = backStackEntry?.destination?.route
+    val openCreatePostDialog = remember { mutableStateOf(false) }
 
-    LaunchedEffect(currentRoute) {
-        if (currentRoute == PostRoutes.PostList.route) {
-            viewModel.getPosts()
-        }
+    if (openCreatePostDialog.value) {
+         PostCreateDialog(onCancel = { openCreatePostDialog.value = false }) { content, media ->
+            createPost(content, media)
+            openCreatePostDialog.value = false
+         }
     }
 
     AppLayout (
-        navController = navController,
         title = { Text(text = "Yapper") },
-        modifier = Modifier,
+        currentRoute = currentRoute,
+        navigateTo = navigateTo,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate(PostRoutes.PostCreate.route) },
-                modifier = Modifier,
+                onClick = { openCreatePostDialog.value = true },
                 shape = CircleShape,
                 containerColor = Colors.Indigo500,
                 contentColor = Colors.White
@@ -62,31 +66,147 @@ fun PostListScreen(
         }
     ) { innerPadding ->
         Box(
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.fillMaxSize().padding(innerPadding)
         ) {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(state.value.posts) { post ->
-                    CommentListItem(
-                        post = post,
-                        onPostClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId") },
-                        onPostLikeClick = { viewModel.onToggleLike(post) },
-                        onPostCommentClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId?${Constants.PARAM_FOCUS_REPLY}=true") },
-                        onPostReferenceClick = { postId -> navController.navigate(PostRoutes.PostDetail.route + "/$postId") }
-                    )
-                }
-            }
-            if (state.value.error.isNotBlank()) {
-                Text(text = state.value.error, modifier = Modifier.align(Alignment.Center))
-            }
-            if (state.value.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
-            if (!state.value.isLoading && state.value.posts.isEmpty()) {
-                Text(text = "No posts...yet",
+            if (state.isLoading) {
+                Loading(modifier = Modifier.align(Alignment.Center))
+            } else if (state.error.isNotBlank()) {
+                Text(
+                    text = state.error,
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Colors.Red500
+                )
+            } else if (state.posts.isEmpty()) {
+                Text(
+                    text = "No posts...yet",
                     modifier = Modifier.align(Alignment.Center),
                     color = Colors.Neutral400
                 )
+            } else {
+                LazyColumn {
+                    items(state.posts) { post ->
+                        PostListItem(
+                            post = post,
+                            onClick = { navigateTo("${PostRoutes.PostDetail.route}/${post.id}") },
+                            onLikeClick = { toggleLike(post) },
+                            onCommentClick = { navigateTo("${PostRoutes.PostDetail.route}/${post.id}?${Constants.PARAM_FOCUS_REPLY}=true") },
+                            onReferenceClick = { if(post.postReference != null) navigateTo("${PostRoutes.PostDetail.route}/${post.postReference.id}") }
+                        )
+                    }
+                }
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PostListScreenPreview() {
+    PostListScreen(
+        state = PostListState(
+            posts = listOf(
+                Post(
+                    id = "1",
+                    userId = "1",
+                    user = User(
+                        id = "1",
+                        name = "Sebastian Ojeda",
+                        username = "sebsojeda",
+                        avatar = null,
+                        createdAt = "2022-01-01T00:00:00Z"
+                    ),
+                    postId = "1",
+                    content = "Hello, world!",
+                    likes = 0,
+                    comments = 0,
+                    createdAt = "2022-01-01T00:00:00Z",
+                    likedByUser = false,
+                    postMedia = emptyList(),
+                    postReference = null
+                ),
+                Post(
+                    id = "2",
+                    userId = "2",
+                    user = User(
+                        id = "2",
+                        name = "Jane Doe",
+                        username = "janedoe",
+                        avatar = null,
+                        createdAt = "2022-01-01T00:00:00Z"
+                    ),
+                    postId = "2",
+                    content = "This is a test post.",
+                    likes = 0,
+                    comments = 0,
+                    createdAt = "2022-01-01T00:00:00Z",
+                    likedByUser = false,
+                    postMedia = listOf(
+                        PostMedia(
+                            postId = "2",
+                            mediaId = "1",
+                            media = Media(
+                                id = "1",
+                                path = "https://picsum.photos/200/300",
+                            )
+                        )
+                    ),
+                    postReference = null
+                )
+            ),
+            isLoading = false,
+            error = ""
+        ),
+        currentRoute = PostRoutes.PostList.route,
+        navigateTo = {},
+        toggleLike = {},
+        createPost = {_, _ ->}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PostListScreenPreviewLoading() {
+    PostListScreen(
+        state = PostListState(
+            posts = emptyList(),
+            isLoading = true,
+            error = ""
+        ),
+        currentRoute = PostRoutes.PostList.route,
+        navigateTo = {},
+        toggleLike = {},
+        createPost = {_, _ ->}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PostListScreenPreviewError() {
+    PostListScreen(
+        state = PostListState(
+            posts = emptyList(),
+            isLoading = false,
+            error = "Unknown error occurred."
+        ),
+        currentRoute = PostRoutes.PostList.route,
+        navigateTo = {},
+        toggleLike = {},
+        createPost = {_, _ ->}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PostListScreenPreviewEmpty() {
+    PostListScreen(
+        state = PostListState(
+            posts = emptyList(),
+            isLoading = false,
+            error = ""
+        ),
+        currentRoute = PostRoutes.PostList.route,
+        navigateTo = {},
+        toggleLike = {},
+        createPost = {_, _ ->}
+    )
 }

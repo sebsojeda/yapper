@@ -1,8 +1,5 @@
 package com.github.sebsojeda.yapper.features.chat.presentation.chat_detail
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,7 +9,6 @@ import com.github.sebsojeda.yapper.features.chat.domain.usecase.ChatUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
@@ -20,22 +16,19 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatDetailViewModel @Inject constructor(
     private val chatUseCases: ChatUseCases,
-    savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val _state = MutableStateFlow(ChatDetailState())
-    val state: StateFlow<ChatDetailState> = _state.asStateFlow()
-    var content by mutableStateOf("")
-        private set
+    private val _state: MutableStateFlow<ChatDetailState> = MutableStateFlow(ChatDetailState())
+    val state: StateFlow<ChatDetailState> = _state
 
     init {
         savedStateHandle.get<String>(Constants.PARAM_CONVERSATION_ID)?.let { conversationId ->
-            _state.value = _state.value.copy(conversationId = conversationId)
-            getConversation(conversationId)
+            getMessages(conversationId)
             listenForMessages(conversationId)
         }
     }
 
-    private fun getConversation(conversationId: String) {
+    private fun getMessages(conversationId: String) {
         chatUseCases.getConversation(conversationId).onEach { result ->
             _state.value = when (result) {
                 is Resource.Loading -> _state.value.copy(isLoading = true)
@@ -72,23 +65,19 @@ class ChatDetailViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun onSendMessageClick() {
+    fun createMessage(content: String) {
         chatUseCases.createMessage(_state.value.conversationId, content).onEach { result ->
             when (result) {
                 is Resource.Loading -> {
                     // Do nothing
                 }
                 is Resource.Success -> {
-                    content = ""
+
                 }
                 is Resource.Error -> {
                     // Do nothing
                 }
             }
         }.launchIn(viewModelScope)
-    }
-
-    fun onContentChange(content: String) {
-        this.content = content
     }
 }

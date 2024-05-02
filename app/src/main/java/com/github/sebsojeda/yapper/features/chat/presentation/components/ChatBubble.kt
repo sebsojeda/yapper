@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.sebsojeda.yapper.ui.theme.Colors
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -38,7 +39,7 @@ fun ChatBubble(message: String, align: Alignment.Horizontal, color: Color, times
         ) {
             Text(
                 text = message,
-                color = Color.White,
+                color = Colors.White,
                 modifier = Modifier
                     .background(color = color)
                     .padding(vertical = 8.dp, horizontal = 16.dp)
@@ -49,7 +50,7 @@ fun ChatBubble(message: String, align: Alignment.Horizontal, color: Color, times
         ) {
             Text(
                 text = parseTimestamp(timestamp),
-                color = Color.Gray,
+                color = Colors.Neutral400,
                 modifier = Modifier.padding(horizontal = 8.dp),
                 style = MaterialTheme.typography.bodySmall
             )
@@ -67,13 +68,24 @@ private fun parseTimestamp(timestamp: String): String {
     return localDateTime.format(outputFormatter)
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
-fun ChatBubblePreview() {
+fun ChatBubblePreviewEnd() {
     ChatBubble(
         message = "Hello, World!",
         align = Alignment.End,
-        color = Color.LightGray,
+        color = Colors.Indigo500,
+        timestamp = "2021-08-01T12:00:00Z"
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ChatBubblePreviewStart() {
+    ChatBubble(
+        message = "Hello, World!",
+        align = Alignment.Start,
+        color = Colors.Neutral400,
         timestamp = "2021-08-01T12:00:00Z"
     )
 }
