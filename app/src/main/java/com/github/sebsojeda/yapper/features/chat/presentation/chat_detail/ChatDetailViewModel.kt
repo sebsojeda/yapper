@@ -23,6 +23,7 @@ class ChatDetailViewModel @Inject constructor(
 
     init {
         savedStateHandle.get<String>(Constants.PARAM_CONVERSATION_ID)?.let { conversationId ->
+            _state.value = _state.value.copy(conversationId = conversationId)
             getMessages(conversationId)
             listenForMessages(conversationId)
         }
@@ -35,7 +36,6 @@ class ChatDetailViewModel @Inject constructor(
                 is Resource.Success -> {
                     _state.value.copy(
                         conversation = result.data,
-                        messages = result.data?.messages ?: emptyList(),
                         isLoading = false
                     )
                 }
@@ -53,7 +53,9 @@ class ChatDetailViewModel @Inject constructor(
                 is Resource.Loading -> _state.value.copy(isLoading = true)
                 is Resource.Success -> {
                     _state.value.copy(
-                        messages = _state.value.messages + result.data!!,
+                        conversation = _state.value.conversation?.copy(
+                            messages = _state.value.conversation?.messages.orEmpty() + result.data!!
+                        ),
                         isLoading = false
                     )
                 }

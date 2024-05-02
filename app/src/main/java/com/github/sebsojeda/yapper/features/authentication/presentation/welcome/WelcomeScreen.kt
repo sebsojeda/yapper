@@ -14,14 +14,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.github.sebsojeda.yapper.features.authentication.presentation.AuthenticationRoutes
 import com.github.sebsojeda.yapper.features.authentication.presentation.components.ActionButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WelcomeScreen(navController: NavController) {
+fun WelcomeScreen(
+    navigateTo: (String) -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(title = {})
@@ -39,7 +41,7 @@ fun WelcomeScreen(navController: NavController) {
                     modifier = Modifier.padding(bottom = 32.dp),
                 )
                 ActionButton(text = "Create account", modifier = Modifier.padding(top = 32.dp)) {
-                    navController.navigate(AuthenticationRoutes.SignUp.route)
+                    navigateTo(AuthenticationRoutes.SignUp.route)
                 }
                 Text(
                     text = "or",
@@ -50,9 +52,15 @@ fun WelcomeScreen(navController: NavController) {
                         .padding(vertical = 8.dp)
                 )
                 ActionButton(text = "Sign in", modifier = Modifier.padding(bottom = 32.dp), primary = false) {
-                    navController.navigate(AuthenticationRoutes.SignIn.route)
+                    navigateTo(AuthenticationRoutes.SignIn.route)
                 }
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WelcomeScreenPreview() {
+    WelcomeScreen(navigateTo = {})
 }

@@ -15,13 +15,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.sebsojeda.yapper.features.user.domain.model.User
 import com.github.sebsojeda.yapper.ui.theme.Colors
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun ChatBubble(message: String, align: Alignment.Horizontal, color: Color, timestamp: String) {
+fun ChatBubble(
+    message: String,
+    align: Alignment.Horizontal,
+    color: Color, timestamp: String,
+    user: User,
+    showUser: Boolean = false
+) {
     val clip = if (align == Alignment.Start) {
         RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomEnd = 16.dp)
     } else {
@@ -32,6 +39,18 @@ fun ChatBubble(message: String, align: Alignment.Horizontal, color: Color, times
             .fillMaxWidth()
             .padding(4.dp)
     ) {
+        if (showUser) {
+            Row(
+                modifier = Modifier.align(align)
+            ) {
+                Text(
+                    text = user.name,
+                    color = Colors.Neutral400,
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
         Row(
             modifier = Modifier
                 .align(align)
@@ -75,7 +94,15 @@ fun ChatBubblePreviewEnd() {
         message = "Hello, World!",
         align = Alignment.End,
         color = Colors.Indigo500,
-        timestamp = "2021-08-01T12:00:00Z"
+        timestamp = "2021-08-01T12:00:00Z",
+        user = User(
+            id = "1",
+            name = "Sebastian",
+            username = "sebsojeda",
+            createdAt = "2021-10-10T00:00:00Z",
+            avatar = null
+        ),
+        showUser = true
     )
 }
 
@@ -86,6 +113,14 @@ fun ChatBubblePreviewStart() {
         message = "Hello, World!",
         align = Alignment.Start,
         color = Colors.Neutral400,
-        timestamp = "2021-08-01T12:00:00Z"
+        timestamp = "2021-08-01T12:00:00Z",
+        user = User(
+            id = "1",
+            name = "Sebastian",
+            username = "sebsojeda",
+            createdAt = "2021-10-10T00:00:00Z",
+            avatar = null
+        ),
+        showUser = false
     )
 }

@@ -38,4 +38,26 @@ class ChatListViewModel @Inject constructor(
             }
         }.launchIn(viewModelScope)
     }
+
+    fun createChat(participants: List<String>, content: String) {
+        chatUseCases.createConversation(participants, content).onEach { result ->
+            _state.value = when (result) {
+                is Resource.Loading -> {
+                    _state.value.copy(isChatLoading = true)
+                }
+                is Resource.Success -> {
+                    _state.value.copy(
+                        chat = result.data,
+                        isChatLoading = false
+                    )
+                }
+                is Resource.Error -> {
+                    _state.value.copy(
+                        error = result.message ?: "An unexpected error occurred",
+                        isChatLoading = false
+                    )
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
 }

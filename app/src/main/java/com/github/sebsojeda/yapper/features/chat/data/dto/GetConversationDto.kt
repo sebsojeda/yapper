@@ -12,8 +12,8 @@ data class GetConversationDto(
     @SerialName("name") val name: String,
     @SerialName("media_id") val mediaId: String?,
     @SerialName("media") val media: GetMediaDto?,
-    @SerialName("messages") val messages: List<GetMessageDto>?,
-    @SerialName("participants") val participants: List<GetParticipantDto>?,
+    @SerialName("messages") val messages: List<GetMessageDto>,
+    @SerialName("participants") val participants: List<GetParticipantDto>,
     @SerialName("created_at") val createdAt: String,
 )
 
@@ -22,7 +22,7 @@ fun GetConversationDto.toConversation() = Conversation(
     name = name,
     mediaId = mediaId,
     media = media?.toMedia(),
-    messages = messages?.map { it.toMessage() },
-    participants = participants?.map { it.toParticipant() },
+    messages = messages.map { it.toMessage() },
+    participants = participants.map { it.toParticipant() },
     createdAt = createdAt,
 )

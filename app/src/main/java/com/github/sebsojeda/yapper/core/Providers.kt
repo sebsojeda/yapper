@@ -11,7 +11,7 @@ data class AuthContext(
 val LocalAuthContext = staticCompositionLocalOf {
     AuthContext(
         user = User(
-            id = "0",
+            id = "1",
             name = "Default",
             username = "default",
             createdAt = "2021-01-01T00:00:00Z",

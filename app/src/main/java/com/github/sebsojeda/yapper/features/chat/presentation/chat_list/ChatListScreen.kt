@@ -10,6 +10,9 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -21,6 +24,7 @@ import com.github.sebsojeda.yapper.features.chat.domain.model.Conversation
 import com.github.sebsojeda.yapper.features.chat.domain.model.Message
 import com.github.sebsojeda.yapper.features.chat.domain.model.Participant
 import com.github.sebsojeda.yapper.features.chat.presentation.ChatRoutes
+import com.github.sebsojeda.yapper.features.chat.presentation.components.ChatCreateDialog
 import com.github.sebsojeda.yapper.features.chat.presentation.components.ChatListItem
 import com.github.sebsojeda.yapper.features.user.domain.model.User
 import com.github.sebsojeda.yapper.ui.theme.Colors
@@ -30,14 +34,33 @@ fun ChatListScreen(
     state: ChatListState,
     currentRoute: String?,
     navigateTo: (String) -> Unit,
+    createChat: (List<String>, String) -> Unit
 ) {
+    val openCreateChatDialog = remember { mutableStateOf(false) }
+
+    if (openCreateChatDialog.value) {
+        ChatCreateDialog(
+            isLoading = state.isChatLoading,
+            onCancel = { openCreateChatDialog.value = false }
+        ) { participants, content ->
+            createChat(participants, content)
+            openCreateChatDialog.value = false
+        }
+    }
+
+    LaunchedEffect(state.chat) {
+        if (state.chat != null) {
+            navigateTo("${ChatRoutes.ChatDetail.route}/${state.chat.id}")
+        }
+    }
+
     AppLayout (
         title = { Text(text = "Messages") },
         currentRoute = currentRoute,
         navigateTo = navigateTo,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navigateTo(ChatRoutes.ChatCreate.route) },
+                onClick = { openCreateChatDialog.value = true },
                 modifier = Modifier,
                 shape = CircleShape,
                 containerColor = Colors.Indigo500
@@ -51,7 +74,9 @@ fun ChatListScreen(
         }
     ) { innerPadding ->
         Box(
-            modifier = Modifier.fillMaxSize().padding(innerPadding)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
             if (state.isLoading) {
                 Loading(modifier = Modifier.align(Alignment.Center))
@@ -69,8 +94,8 @@ fun ChatListScreen(
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(state.conversations) { conversation ->
-                        val firstParticipant = conversation.participants?.firstOrNull()
-                        val lastMessage = conversation.messages?.lastOrNull()
+                        val firstParticipant = conversation.participants.firstOrNull()
+                        val lastMessage = conversation.messages.lastOrNull()
                         val path = conversation.media?.path ?: firstParticipant?.user?.avatar?.path
                         val name = conversation.name
                         val preview = lastMessage?.content
@@ -130,7 +155,8 @@ fun ChatListScreenPreview() {
             )
         ),
         currentRoute = ChatRoutes.ChatList.route,
-        navigateTo = {}
+        navigateTo = {},
+        createChat = { _, _ -> }
     )
 }
 
@@ -142,7 +168,8 @@ fun ChatListPreviewLoading() {
             isLoading = true
         ),
         currentRoute = ChatRoutes.ChatList.route,
-        navigateTo = {}
+        navigateTo = {},
+        createChat = { _, _ -> }
     )
 }
 
@@ -154,7 +181,8 @@ fun ChatListPreviewError() {
             error = "An unexpected error occurred"
         ),
         currentRoute = ChatRoutes.ChatList.route,
-        navigateTo = {}
+        navigateTo = {},
+        createChat = { _, _ -> }
     )
 }
 
@@ -166,6 +194,7 @@ fun ChatListPreviewEmpty() {
             conversations = emptyList()
         ),
         currentRoute = ChatRoutes.ChatList.route,
-        navigateTo = {}
+        navigateTo = {},
+        createChat = { _, _ -> }
     )
 }

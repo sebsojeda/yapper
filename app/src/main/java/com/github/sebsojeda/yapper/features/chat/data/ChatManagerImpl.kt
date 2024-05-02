@@ -37,9 +37,11 @@ class ChatManagerImpl @Inject constructor(
         participants.forEach { username ->
             try {
                 val user = userRepository.getUserByUsername(username)
-                users.add(user)
+                if (user.id != auth.currentUserOrNull()!!.id) {
+                    users.add(user)
+                }
             } catch (e: IllegalArgumentException) {
-                throw IllegalArgumentException("User $username not found")
+                throw IllegalArgumentException("User @$username not found")
             }
         }
 

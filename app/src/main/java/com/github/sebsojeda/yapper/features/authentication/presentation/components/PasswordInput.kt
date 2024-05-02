@@ -1,6 +1,8 @@
 package com.github.sebsojeda.yapper.features.authentication.presentation.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardActionScope
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -8,8 +10,10 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @Composable
@@ -18,7 +22,8 @@ fun PasswordInput(
     onValueChange: (String) -> Unit,
     placeholder: String,
     modifier: Modifier = Modifier,
-    isError: Boolean = false
+    isError: Boolean = false,
+    onGo: KeyboardActionScope.() -> Unit = {}
 ) {
     TextField(
         value = value,
@@ -40,6 +45,22 @@ fun PasswordInput(
         singleLine = true,
         isError = isError,
         visualTransformation = PasswordVisualTransformation(),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Password,
+            imeAction = ImeAction.Go
+        ),
+        keyboardActions = KeyboardActions(
+            onGo = onGo
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PasswordInputPreview() {
+    PasswordInput(
+        value = "",
+        onValueChange = {},
+        placeholder = "Password"
     )
 }

@@ -22,12 +22,13 @@ import com.github.sebsojeda.yapper.core.LocalAuthContext
 import com.github.sebsojeda.yapper.core.presentation.AuthViewModel
 import com.github.sebsojeda.yapper.features.authentication.presentation.AuthenticationRoutes
 import com.github.sebsojeda.yapper.features.authentication.presentation.sign_in.SignInScreen
+import com.github.sebsojeda.yapper.features.authentication.presentation.sign_in.SignInState
+import com.github.sebsojeda.yapper.features.authentication.presentation.sign_in.SignInViewModel
 import com.github.sebsojeda.yapper.features.authentication.presentation.sign_up.SignUpScreen
+import com.github.sebsojeda.yapper.features.authentication.presentation.sign_up.SignUpState
+import com.github.sebsojeda.yapper.features.authentication.presentation.sign_up.SignUpViewModel
 import com.github.sebsojeda.yapper.features.authentication.presentation.welcome.WelcomeScreen
 import com.github.sebsojeda.yapper.features.chat.presentation.ChatRoutes
-import com.github.sebsojeda.yapper.features.chat.presentation.chat_create.ChatCreateScreen
-import com.github.sebsojeda.yapper.features.chat.presentation.chat_create.ChatCreateState
-import com.github.sebsojeda.yapper.features.chat.presentation.chat_create.ChatCreateViewModel
 import com.github.sebsojeda.yapper.features.chat.presentation.chat_detail.ChatDetailScreen
 import com.github.sebsojeda.yapper.features.chat.presentation.chat_detail.ChatDetailState
 import com.github.sebsojeda.yapper.features.chat.presentation.chat_detail.ChatDetailViewModel
@@ -71,17 +72,31 @@ class MainActivity : ComponentActivity() {
                             composable(
                                 route = AuthenticationRoutes.Welcome.route
                             ) {
-                                WelcomeScreen(navController)
+                                WelcomeScreen(
+                                    navigateTo = navController::navigate
+                                )
                             }
                             composable(
                                 route = AuthenticationRoutes.SignUp.route
                             ) {
-                                SignUpScreen(navController)
+                                val viewModel: SignUpViewModel = hiltViewModel()
+                                val state: SignUpState by viewModel.state.collectAsState()
+                                SignUpScreen(
+                                    state = state,
+                                    navigateTo = navController::navigate,
+                                    signUp = viewModel::signUp
+                                )
                             }
                             composable(
                                 route = AuthenticationRoutes.SignIn.route
                             ) {
-                                SignInScreen(navController)
+                                val viewModel: SignInViewModel = hiltViewModel()
+                                val state: SignInState by viewModel.state.collectAsState()
+                                SignInScreen(
+                                    state = state,
+                                    navigateTo = navController::navigate,
+                                    signIn = viewModel::signIn
+                                )
                             }
                         }
                     }
@@ -163,6 +178,7 @@ class MainActivity : ComponentActivity() {
                                         state = state,
                                         currentRoute = it.destination.route,
                                         navigateTo = navController::navigate,
+                                        createChat = viewModel::createChat
                                     )
                                 }
                                 composable(
@@ -182,18 +198,6 @@ class MainActivity : ComponentActivity() {
                                         navigateTo = navController::navigate,
                                         navigateBack = { navController.navigateUp() },
                                         createMessage = viewModel::createMessage,
-                                    )
-                                }
-                                composable(
-                                    route = ChatRoutes.ChatCreate.route
-                                ) {
-                                    val viewModel: ChatCreateViewModel = hiltViewModel()
-                                    val state: ChatCreateState by viewModel.state.collectAsState()
-                                    ChatCreateScreen(
-                                        state = state,
-                                        onCreateChat = viewModel::createChat,
-                                        navigateBack = { navController.navigateUp() },
-                                        navigateToChatDetail = { navController.navigate("${ChatRoutes.ChatDetail.route}/$it") },
                                     )
                                 }
                             }
