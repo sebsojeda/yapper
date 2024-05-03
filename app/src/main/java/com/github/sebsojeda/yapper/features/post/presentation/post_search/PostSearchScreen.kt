@@ -33,6 +33,7 @@ import com.github.sebsojeda.yapper.features.post.domain.model.Post
 import com.github.sebsojeda.yapper.features.post.presentation.PostRoutes
 import com.github.sebsojeda.yapper.features.post.presentation.components.PostCreateDialog
 import com.github.sebsojeda.yapper.features.post.presentation.components.PostListItem
+import com.github.sebsojeda.yapper.features.user.domain.model.User
 import com.github.sebsojeda.yapper.ui.theme.Colors
 
 @Composable
@@ -112,19 +113,26 @@ fun PostSearchScreen(
                     modifier = Modifier.align(Alignment.Center)
                 )
             } else if (state.posts.isEmpty()) {
-                Text(text = "No posts...yet",
-                    modifier = Modifier.align(Alignment.Center),
-                    color = Colors.Neutral400
+                Text(
+                    text = "No posts...yet",
+                    color = Colors.Neutral400,
+                    modifier = Modifier.align(Alignment.Center)
                 )
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     item {
                         if (query.value.isEmpty()) {
-                            Text(text = "Popular", modifier = Modifier
-                                .padding(16.dp)
-                                .bottomBorder(2.dp, Colors.Indigo500))
+                            Text(
+                                text = "Popular",
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .bottomBorder(2.dp, Colors.Indigo500))
                         } else {
-                            Text(text = "Search results for \"${query.value}\"", color = Colors.Neutral400, modifier = Modifier.padding(16.dp))
+                            Text(
+                                text = "Search results for \"${query.value}\"",
+                                color = Colors.Neutral400,
+                                modifier = Modifier.padding(16.dp)
+                            )
                         }
                     }
                     items(state.posts) { post ->
@@ -140,6 +148,41 @@ fun PostSearchScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PostSearchScreenPreview() {
+    PostSearchScreen(
+        state = PostSearchState(
+            posts = listOf(
+                Post(
+                    id = "1",
+                    userId = "1",
+                    user = User(
+                        id = "1",
+                        name = "John Doe",
+                        username = "johndoe",
+                        createdAt = "2021-01-01T00:00:00Z",
+                        avatar = null
+                    ),
+                    postId = null,
+                    postReference = null,
+                    content = "Hello, world!",
+                    likes = 0,
+                    comments = 0,
+                    createdAt = "2021-01-01T00:00:00Z",
+                    likedByUser = false,
+                    postMedia = emptyList()
+                )
+            )
+        ),
+        currentRoute = PostRoutes.PostSearch.route,
+        navigateTo = {},
+        toggleLike = {},
+        search = { },
+        createPost = { _, _ -> }
+    )
 }
 
 @Preview(showBackground = true)

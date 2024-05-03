@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.sebsojeda.yapper.core.LocalAuthContext
 import com.github.sebsojeda.yapper.features.chat.domain.model.Conversation
 import com.github.sebsojeda.yapper.ui.theme.Colors
 import kotlinx.coroutines.launch
@@ -38,9 +39,12 @@ fun ConversationBottomSheet(
     conversation: Conversation,
     onClose: () -> Unit,
 ) {
+    val auth = LocalAuthContext.current
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
     var newConversationName by remember { mutableStateOf(conversation.name) }
+    val participant = conversation.participants.first { it.userId != auth.user.id }
+    val participants = conversation.participants.filter { it.userId != auth.user.id }
 
     ModalBottomSheet(
         onDismissRequest = onClose,
@@ -58,12 +62,12 @@ fun ConversationBottomSheet(
                 modifier = Modifier.padding(bottom = 16.dp)
             )
             Avatar(
-                imageUrl = conversation.media?.path,
-                displayName = conversation.name,
+                imageUrl = conversation.media?.path ?: participant.user.avatar?.path,
+                displayName = conversation.name ?: participants.joinToString { it.user.name },
                 size = 64)
             Box {
                 TextField(
-                    value = newConversationName ?: conversation.name,
+                    value = newConversationName ?: conversation.name ?: participants.joinToString { it.user.name },
                     onValueChange = { newConversationName = it },
                     modifier = Modifier
                         .align(Alignment.Center),
@@ -76,7 +80,8 @@ fun ConversationBottomSheet(
                         disabledIndicatorColor = Colors.Transparent,
                         cursorColor = Colors.Neutral950
                     ),
-                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
+                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
+                    singleLine = true
                 )
             }
         }

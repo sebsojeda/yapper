@@ -4,7 +4,7 @@ import com.github.sebsojeda.yapper.core.domain.model.Media
 
 data class Conversation(
     val id: String,
-    val name: String,
+    val name: String?,
     val mediaId: String?,
     val media: Media?,
     val messages: List<Message>,

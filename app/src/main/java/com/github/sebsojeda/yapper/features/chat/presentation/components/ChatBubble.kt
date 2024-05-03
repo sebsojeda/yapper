@@ -1,6 +1,8 @@
 package com.github.sebsojeda.yapper.features.chat.presentation.components
 
+import Avatar
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,35 +36,44 @@ fun ChatBubble(
     } else {
         RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = 16.dp)
     }
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp)
-    ) {
-        if (showUser) {
-            Row(
-                modifier = Modifier.align(align)
-            ) {
-                Text(
-                    text = user.name,
-                    color = Colors.Neutral400,
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-        }
+    Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
         Row(
-            modifier = Modifier
-                .align(align)
-                .clip(clip)
+            verticalAlignment = Alignment.Bottom,
         ) {
-            Text(
-                text = message,
-                color = Colors.White,
-                modifier = Modifier
-                    .background(color = color)
-                    .padding(vertical = 8.dp, horizontal = 16.dp)
-            )
+            if (showUser) {
+                Box(modifier = Modifier.padding(end = 4.dp)) {
+                    Avatar(
+                        imageUrl = user.avatar?.path,
+                        displayName = user.name,
+                        size = 32
+                    )
+                }
+            }
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (showUser) {
+                    Row(
+                        modifier = Modifier.align(align)
+                    ) {
+                        Text(
+                            text = user.name,
+                            color = Colors.Neutral400,
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+                Row(modifier = Modifier.align(align).clip(clip)) {
+                    Text(
+                        text = message,
+                        color = Colors.White,
+                        modifier = Modifier
+                            .background(color = color)
+                            .padding(vertical = 8.dp, horizontal = 16.dp)
+                    )
+                }
+            }
         }
         Row(
             modifier = Modifier.align(align)
@@ -70,7 +81,13 @@ fun ChatBubble(
             Text(
                 text = parseTimestamp(timestamp),
                 color = Colors.Neutral400,
-                modifier = Modifier.padding(horizontal = 8.dp),
+                modifier = Modifier.run {
+                    if (showUser) {
+                        padding(start = 48.dp)
+                    } else {
+                        padding(horizontal = 16.dp)
+                    }
+                },
                 style = MaterialTheme.typography.bodySmall
             )
         }
@@ -102,7 +119,7 @@ fun ChatBubblePreviewEnd() {
             createdAt = "2021-10-10T00:00:00Z",
             avatar = null
         ),
-        showUser = true
+        showUser = false
     )
 }
 
@@ -110,7 +127,7 @@ fun ChatBubblePreviewEnd() {
 @Composable
 fun ChatBubblePreviewStart() {
     ChatBubble(
-        message = "Hello, World!",
+        message = "Hello, World!\nFood is fuel!\nLet's go!",
         align = Alignment.Start,
         color = Colors.Neutral400,
         timestamp = "2021-08-01T12:00:00Z",
@@ -121,6 +138,6 @@ fun ChatBubblePreviewStart() {
             createdAt = "2021-10-10T00:00:00Z",
             avatar = null
         ),
-        showUser = false
+        showUser = true
     )
 }

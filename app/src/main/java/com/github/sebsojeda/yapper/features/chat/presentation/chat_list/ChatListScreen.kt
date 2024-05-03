@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.github.sebsojeda.yapper.R
+import com.github.sebsojeda.yapper.core.LocalAuthContext
 import com.github.sebsojeda.yapper.core.components.AppLayout
 import com.github.sebsojeda.yapper.core.components.Loading
 import com.github.sebsojeda.yapper.features.chat.domain.model.Conversation
@@ -37,6 +38,7 @@ fun ChatListScreen(
     createChat: (List<String>, String) -> Unit
 ) {
     val openCreateChatDialog = remember { mutableStateOf(false) }
+    val auth = LocalAuthContext.current
 
     if (openCreateChatDialog.value) {
         ChatCreateDialog(
@@ -94,11 +96,11 @@ fun ChatListScreen(
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(state.conversations) { conversation ->
-                        val firstParticipant = conversation.participants.firstOrNull()
-                        val lastMessage = conversation.messages.lastOrNull()
-                        val path = conversation.media?.path ?: firstParticipant?.user?.avatar?.path
-                        val name = conversation.name
-                        val preview = lastMessage?.content
+                        val participant = conversation.participants.first { it.userId != auth.user.id }
+                        val participants = conversation.participants.filter { it.userId != auth.user.id }
+                        val path = conversation.media?.path ?: participant.user.avatar?.path
+                        val name = conversation.name ?: participants.joinToString { it.user.name }
+                        val preview = conversation.messages.lastOrNull()?.content
                         ChatListItem(img = path, name = name, preview = preview) {
                             navigateTo("${ChatRoutes.ChatDetail.route}/${conversation.id}")
                         }
@@ -126,6 +128,18 @@ fun ChatListScreenPreview() {
                                 id = "1",
                                 name = "Sebastian",
                                 username = "sebsojeda",
+                                createdAt = "2021-10-10T00:00:00Z",
+                                avatar = null
+                            ),
+                            createdAt = "2021-10-10T00:00:00Z"
+                        ),
+                        Participant(
+                            conversationId = "1",
+                            userId = "2",
+                            user = User(
+                                id = "2",
+                                name = "John Doe",
+                                username = "johndoe",
                                 createdAt = "2021-10-10T00:00:00Z",
                                 avatar = null
                             ),

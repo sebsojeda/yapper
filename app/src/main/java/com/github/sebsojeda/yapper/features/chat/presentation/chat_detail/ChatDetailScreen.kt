@@ -28,6 +28,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -83,15 +84,19 @@ fun ChatDetailScreen(
                 }
             ) {
                 if (state.conversation != null) {
+                    val participant = state.conversation.participants.first { it.userId != auth.user.id }
+                    val participants = state.conversation.participants.filter { it.userId != auth.user.id }
                     Avatar(
-                        imageUrl = state.conversation.media?.path,
-                        displayName = state.conversation.name,
+                        imageUrl = state.conversation.media?.path ?: participant.user.avatar?.path,
+                        displayName = state.conversation.name ?: participants.joinToString { it.user.name },
                         size = 32)
                     Text(
-                        text = state.conversation.name,
+                        text = state.conversation.name ?: participants.joinToString { it.user.name },
                         modifier = Modifier.padding(top = 8.dp),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }

@@ -17,7 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ChatListItem(img: String?, name: String?, preview: String?, onChatClick: () -> Unit) {
+fun ChatListItem(img: String?, name: String, preview: String?, onChatClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -26,12 +26,17 @@ fun ChatListItem(img: String?, name: String?, preview: String?, onChatClick: () 
     ) {
         Avatar(
             imageUrl = img,
-            displayName = name ?: "Unknown",
+            displayName = name,
             size = 48
         )
         Spacer(modifier = Modifier.padding(8.dp))
         Column {
-            Text(text = name ?: "Unknown", fontWeight = FontWeight.Bold)
+            Text(
+                text = name,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
             Text(
                 text = preview ?: "No messages yet",
                 fontStyle = if (preview != null) FontStyle.Normal else FontStyle.Italic,
@@ -49,6 +54,17 @@ fun ChatListItemPreview() {
         img = null,
         name = "John Doe",
         preview = "Hello, how are you?",
+        onChatClick = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ChatListItemPreviewNoPreview() {
+    ChatListItem(
+        img = null,
+        name = "John Doe",
+        preview = null,
         onChatClick = {}
     )
 }
