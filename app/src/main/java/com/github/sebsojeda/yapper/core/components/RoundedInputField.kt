@@ -15,9 +15,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,6 +33,7 @@ fun RoundedInputField(
     onValueChange: (String) -> Unit,
     placeholder: String,
     modifier: Modifier = Modifier,
+    focus: Boolean = false,
     singleLine: Boolean = false,
     prefix: @Composable (() -> Unit)? = null,
     suffix: @Composable (() -> Unit)? = null,
@@ -37,6 +41,7 @@ fun RoundedInputField(
     keyboardActions: KeyboardActions = KeyboardActions.Default,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+    val focusRequester = remember { FocusRequester() }
 
     Row(
         modifier = Modifier
@@ -47,7 +52,7 @@ fun RoundedInputField(
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = modifier,
+            modifier = modifier.focusRequester(focusRequester),
             singleLine = singleLine,
             decorationBox = @Composable { innerTextField ->
                 TextFieldDefaults.DecorationBox(
@@ -77,6 +82,14 @@ fun RoundedInputField(
             keyboardActions = keyboardActions,
             keyboardOptions = keyboardOptions
         )
+    }
+
+    LaunchedEffect(focus) {
+        if (focus) {
+            focusRequester.requestFocus()
+        } else {
+            focusRequester.freeFocus()
+        }
     }
 }
 

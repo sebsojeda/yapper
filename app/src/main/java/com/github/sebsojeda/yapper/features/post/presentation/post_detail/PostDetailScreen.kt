@@ -22,15 +22,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -72,17 +69,10 @@ fun PostDetailScreen(
 ) {
     val localFocusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val focusRequester = remember { FocusRequester() }
-    var hasFocus by remember { mutableStateOf(false) }
+    var focusReply by remember { mutableStateOf(state.focusReply) }
     var selectedMedia by remember { mutableStateOf(emptyList<Uri>()) }
     var content by remember { mutableStateOf("") }
     val contentResolver = LocalContext.current.contentResolver
-
-    LaunchedEffect(state.focusReply) {
-        if (state.focusReply) {
-            focusRequester.requestFocus()
-        }
-    }
 
     AppLayout(
         title = { Text(text = "Post") },
@@ -115,7 +105,9 @@ fun PostDetailScreen(
                 LazyColumn(modifier = Modifier
                     .weight(1f)
                     .pointerInput(Unit) {
-                        detectTapGestures { localFocusManager.clearFocus() }
+                        detectTapGestures {
+                            localFocusManager.clearFocus()
+                        }
                     }
                 ) {
                     item {
@@ -123,7 +115,7 @@ fun PostDetailScreen(
                             PostDetail(
                                 post = post,
                                 onPostLikeClick = { toggleLike(post) },
-                                onPostCommentClick = { focusRequester.requestFocus() },
+                                onPostCommentClick = { focusReply = true },
                                 onPostReferenceClick = { if (post.postReference != null) navigateTo("${PostRoutes.PostDetail.route}/${post.postReference.id}") }
                             )
                         }
@@ -165,7 +157,7 @@ fun PostDetailScreen(
                         .topBorder(1.dp, Colors.Neutral200)
                         .padding(8.dp),
                 ) {
-                    if (hasFocus) {
+                    if (focusReply) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(bottom = 8.dp)
@@ -184,10 +176,10 @@ fun PostDetailScreen(
                             value = content,
                             onValueChange = { content = it },
                             placeholder = "Post your reply",
+                            focus = focusReply,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .focusRequester(focusRequester)
-                                .onFocusChanged { hasFocus = it.isFocused }
+                                .onFocusChanged { focusReply = it.isFocused }
                         )
                         MediaRow(
                             media = selectedMedia,
@@ -195,7 +187,7 @@ fun PostDetailScreen(
                             height = 150.dp
                         )
                     }
-                    if (hasFocus) {
+                    if (focusReply) {
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier.fillMaxWidth()
